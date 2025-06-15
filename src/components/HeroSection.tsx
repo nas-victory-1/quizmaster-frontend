@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Button from "./Button";
 import { Users } from "lucide-react";
+import Link from "next/link";
 const HeroSection = () => {
     return ( 
         <section className="py-20 bg-gradient-to-b from-purple-50 to-white">
@@ -14,9 +15,9 @@ const HeroSection = () => {
                         generate questions or organize existing ones.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4">
-                        {/* <Link href="/signup"> */}
+                        <Link href="/dashboard">
                         <Button label="Get started for free" />
-                        {/* </Link> */}
+                        </Link>
                         {/* <Link href="/demo"> */}
                         <Button label="See a demo" mode="notFilled" />
                         {/* </Link> */}
