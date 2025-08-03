@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -10,6 +11,16 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Brain, Eye, EyeOff, Mail, Lock, User, Building } from "lucide-react"
 
 export default function SignUpPage() {
+
+  const router = useRouter();
+  
+  const [name, setName] = useState("");
+  // const [lastName, setLastName] = useState("");
+  const [organizationName, setOrganizationName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [accountType, setAccountType] = useState<"individual" | "organization">("individual")
@@ -69,16 +80,37 @@ export default function SignUpPage() {
               </div>
             </div>
 
-            <form className="space-y-4">
+            <form
+              className="space-y-4"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setLoading(true);
+                setError("");
+
+                try {
+                  const { signup } = await import("@/api/auth");
+                  const res = await signup({ name, email, password });
+                  console.log("Signup success:", res.data);
+                  alert("Account created successfully!");
+                  router.push('/login');
+                } catch (err: any) {
+                  console.error(err);
+                  setError(err.response?.data?.message || "Signup failed");
+                } finally {
+                  setLoading(false);
+                }
+              }}
+            >
               {/* Name Fields */}
-              <div className="grid grid-cols-2 gap-4">
+              <div>
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">First Name</Label>
-                  <Input id="firstName" placeholder="John" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName">Last Name</Label>
-                  <Input id="lastName" placeholder="Doe" required />
+                  <Label htmlFor="name">Name</Label>
+                  <Input 
+                    id="name" 
+                    placeholder="John Doe"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required />
                 </div>
               </div>
 
@@ -86,7 +118,12 @@ export default function SignUpPage() {
               {accountType === "organization" && (
                 <div className="space-y-2">
                   <Label htmlFor="organizationName">Organization Name</Label>
-                  <Input id="organizationName" placeholder="Acme Corp" required />
+                  <Input 
+                    id="organizationName" 
+                    placeholder="Acme Corp" 
+                    value={organizationName}
+                    onChange={(e) => setOrganizationName(e.target.value)}
+                    required />
                 </div>
               )}
 
@@ -95,7 +132,14 @@ export default function SignUpPage() {
                 <Label htmlFor="email">Email</Label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input id="email" type="email" placeholder="john@example.com" className="pl-10" required />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    placeholder="john@example.com" 
+                    className="pl-10" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required />
                 </div>
               </div>
 
@@ -109,6 +153,8 @@ export default function SignUpPage() {
                     type={showPassword ? "text" : "password"}
                     placeholder="Create a strong password"
                     className="pl-10 pr-10"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     required
                   />
                   <Button
@@ -181,9 +227,13 @@ export default function SignUpPage() {
                 </Label>
               </div> */}
 
+
+              {error && (
+                <p className="text-red-600 text-sm font-medium">{error}</p>
+              )}
               {/* Submit Button */}
-              <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
-                Create Account
+              <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700" disabled={loading}>
+                {loading ? "Signing up..." : "Create Account"}
               </Button>
             </form>
 

@@ -10,7 +10,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Brain, Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 
+
+
 export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
 
@@ -43,13 +49,42 @@ export default function LoginPage() {
             {!showForgotPassword ? (
               <>
                 {/* Login Form */}
-                <form className="space-y-4">
+                <form
+                  className="space-y-4"
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    setLoading(true);
+                    setError("");
+
+                    try {
+                      const { login } = await import("@/api/auth");
+                      const res = await login({ email, password });
+                      console.log("Login success:", res.data);
+                      alert("Login successful!");
+                    } catch (err: any) {
+                      console.error(err);
+                      setError(err.response?.data?.message || "Login failed");
+                    } finally {
+                      setLoading(false);
+                    }
+                  }}
+                >
+
                   {/* Email */}
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
+
                     <div className="relative">
                       <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input id="email" type="email" placeholder="john@example.com" className="pl-10" required />
+                      <Input 
+                        id="email" 
+                        type="email" 
+                        placeholder="john@example.com" 
+                        className="pl-10" 
+                        value={email}  
+                        onChange={(e) => setEmail(e.target.value)} 
+                        required 
+                      />
                     </div>
                   </div>
 
@@ -73,6 +108,8 @@ export default function LoginPage() {
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter your password"
                         className="pl-10 pr-10"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         required
                       />
                       <Button
@@ -97,6 +134,10 @@ export default function LoginPage() {
                       Remember me for 30 days
                     </Label>
                   </div>
+
+                  {error && (
+                    <p className="text-red-600 text-sm font-medium">{error}</p>
+                  )}
 
                   {/* Submit Button */}
                   <Button type="submit" className="w-full bg-purple-600 hover:bg-purple-700">
@@ -190,7 +231,7 @@ export default function LoginPage() {
       </main>
 
       <footer className="border-t bg-white py-6">
-        <div className="container text-center text-sm text-gray-500">© 2025 QuizMaster. All rights reserved.</div>
+        <div className="container text-center text-sm text-gray-500">© {} QuizMaster. All rights reserved.</div>
       </footer>
     </div>
   )
