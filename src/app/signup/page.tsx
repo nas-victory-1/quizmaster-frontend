@@ -27,7 +27,7 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex flex-col">
-      <header className="border-b bg-white">
+      <header className="border-b bg-white px-5">
         <div className="container flex items-center justify-between py-4">
           <Link href="/" className="flex items-center gap-2">
             <div className="bg-purple-600 text-white p-2 rounded-md">

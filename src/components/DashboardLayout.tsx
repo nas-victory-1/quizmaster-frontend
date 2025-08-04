@@ -4,12 +4,16 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LayoutDashboard, ListChecks, Users, BarChart, Settings, LogOut, Menu, Brain } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useRouter } from "next/navigation"
 
 interface DashboardLayoutProps {
   children: ReactNode
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
+
+  const router = useRouter();
+
   const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
     { icon: ListChecks, label: "Quizzes", href: "/dashboard/quizzes" },
@@ -17,6 +21,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     { icon: BarChart, label: "Analytics", href: "/dashboard/analytics" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings" },
   ]
+
+   const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/login");
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -57,7 +66,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="text-sm text-gray-500">jane@example.com</div>
             </div>
           </div>
-          <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50">
+          <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleLogout}>
             <LogOut className="h-4 w-4 mr-2" />
             Log out
           </Button>

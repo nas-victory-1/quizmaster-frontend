@@ -9,10 +9,14 @@ import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Brain, Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { useRouter } from "next/navigation"
 
 
 
 export default function LoginPage() {
+
+  const router = useRouter();
+  
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,7 +26,7 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white flex flex-col">
-      <header className="border-b bg-white">
+      <header className="border-b bg-white px-5">
         <div className="container flex items-center justify-between py-4">
           <Link href="/" className="flex items-center gap-2">
             <div className="bg-purple-600 text-white p-2 rounded-md">
@@ -59,11 +63,13 @@ export default function LoginPage() {
                     try {
                       const { login } = await import("@/api/auth");
                       const res = await login({ email, password });
+                      localStorage.setItem("token", res.data.token);
                       console.log("Login success:", res.data);
-                      alert("Login successful!");
+                      router.push('/dashboard');
+                      // alert("Login successful!");
                     } catch (err: any) {
                       console.error(err);
-                      setError(err.response?.data?.message || "Login failed");
+                      setError(err.response?.data?.message || "Email or password is incorrect");
                     } finally {
                       setLoading(false);
                     }

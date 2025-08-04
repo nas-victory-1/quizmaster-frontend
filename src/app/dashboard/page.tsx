@@ -1,10 +1,15 @@
+'use client'
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { PlusCircle, Clock, Users, BarChart, Edit, Trash2, ExternalLink } from "lucide-react"
 import DashboardLayout from "@/components/DashboardLayout"
+import { useEffect, useState } from "react"
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
+
+  const router = useRouter();
   // Mock data for quizzes
   const quizzes = [
     {
@@ -35,6 +40,26 @@ export default function DashboardPage() {
       time: "2:30 PM",
     },
   ]
+
+  const [authChecking, setAuthChecking] = useState(true);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      router.push("/login");
+    }else{
+      setAuthChecking(false);
+    }
+  }, [router]);
+
+  if(authChecking){
+    return null;
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    router.push("/login");
+  };
 
   return (
     <DashboardLayout>
