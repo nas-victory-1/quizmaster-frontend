@@ -5,15 +5,21 @@ import { Switch } from "./ui/switch";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { QuizData } from "@/types/types";
+import { createQuiz } from "@/api/quiz";
+
+import { useRouter } from "next/navigation";
 
 type Props = {
     quizData: QuizData,
     setErrors: React.Dispatch<React.SetStateAction<string[]>>,
     setActiveTab: (tab: string) => void;
+    setQuizData: React.Dispatch<React.SetStateAction<QuizData>>, 
 }
 
-const Settings = ({quizData, setErrors, setActiveTab}: Props) => {
-    const validateQuiz = () => {
+const Settings = ({quizData, setErrors, setActiveTab, setQuizData}: Props) => {
+  const router = useRouter();
+  const validateQuiz = () => {
+
         const newErrors: string[] = []
 
         if (!quizData.title.trim()) {
@@ -52,11 +58,16 @@ const Settings = ({quizData, setErrors, setActiveTab}: Props) => {
         return newErrors.length === 0
   }
 
-  const handleSaveQuiz = () => {
+  const handleSaveQuiz = async() => {
     if (validateQuiz()) {
-      console.log("Quiz saved:", quizData)
-      // Here you would typically save to your backend
-      alert("Quiz saved successfully!")
+      try {
+        const res = await createQuiz(quizData);
+        router.push('/dashboard')
+        alert("Quiz saved successfully!")
+        
+      } catch (error) {
+        console.error("Quiz creation failed:", error);
+      }
     }
   }
 
@@ -74,21 +85,56 @@ const Settings = ({quizData, setErrors, setActiveTab}: Props) => {
                         <Label className="text-base">Show Leaderboard After Each Question</Label>
                         <p className="text-sm text-gray-500">Display rankings after each question is answered</p>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch
+                        checked={quizData.settings.leaderboard}
+                        onCheckedChange={(value) =>
+                          setQuizData((prev) => ({
+                            ...prev,
+                            settings: {
+                              ...prev.settings,
+                              leaderboard: value,
+                            },
+                          }))
+                        }
+                      />
+
+                      
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <Label className="text-base">Randomize Question Order</Label>
                         <p className="text-sm text-gray-500">Present questions in random order to participants</p>
                       </div>
-                      <Switch />
+                      <Switch
+                        checked={quizData.settings.shuffle}
+                        onCheckedChange={(value) =>
+                          setQuizData((prev) => ({
+                            ...prev,
+                            settings: {
+                              ...prev.settings,
+                              shuffle: value,
+                            },
+                          }))
+                        }
+                      />
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
                         <Label className="text-base">Allow Participants to Review Answers</Label>
                         <p className="text-sm text-gray-500">Let participants see correct answers after the quiz</p>
                       </div>
-                      <Switch defaultChecked />
+                      <Switch
+                        checked={quizData.settings.reviewAnswers}
+                        onCheckedChange={(value) =>
+                          setQuizData((prev) => ({
+                            ...prev,
+                            settings: {
+                              ...prev.settings,
+                              reviewAnswers: value,
+                            },
+                          }))
+                        }
+                      />
                     </div>
                   </div>
                 </div>
@@ -96,13 +142,43 @@ const Settings = ({quizData, setErrors, setActiveTab}: Props) => {
                 <div className="border-t pt-6">
                   <h3 className="text-lg font-medium mb-4">Schedule Quiz</h3>
                   <div className="grid gap-4 md:grid-cols-2">
+
+                    {/* Choosing date */}
                     <div className="space-y-2">
                       <Label htmlFor="quiz-date">Date</Label>
-                      <Input id="quiz-date" type="date" />
+                      <Input
+                        id="quiz-date"
+                        type="date"
+                        value={quizData.settings.date}
+                        onChange={(e) =>
+                          setQuizData((prev) => ({
+                            ...prev,
+                            settings: {
+                              ...prev.settings,
+                              date: e.target.value,
+                            },
+                          }))
+                        }
+                      />
                     </div>
+
+                    {/* Choosing time */}
                     <div className="space-y-2">
                       <Label htmlFor="quiz-time">Time</Label>
-                      <Input id="quiz-time" type="time" />
+                      <Input
+                        id="quiz-time"
+                        type="time"
+                        value={quizData.settings.time}
+                        onChange={(e) =>
+                          setQuizData((prev) => ({
+                            ...prev,
+                            settings: {
+                              ...prev.settings,
+                              time: e.target.value,
+                            },
+                          }))
+                        }
+                      />
                     </div>
                   </div>
                 </div>

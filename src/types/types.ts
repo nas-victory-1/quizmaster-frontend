@@ -11,10 +11,19 @@ export interface Question {
   options: Option[]
 }
 
+type QuizSettings = {
+  leaderboard: boolean;
+  shuffle: boolean;
+  reviewAnswers: boolean;
+  date: string;
+  time: string;
+};
+
 export interface QuizData {
   title: string
   description: string
   category: string
   questions: Question[]
+  settings: QuizSettings,
 }
 

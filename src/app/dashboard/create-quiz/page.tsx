@@ -3,18 +3,11 @@
 import { useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Switch } from "@/components/ui/switch"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Brain, Clock, Plus, Trash2, AlertCircle } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ArrowLeft, AlertCircle } from "lucide-react"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import DashboardLayout from "@/components/DashboardLayout"
-import { QuizData, Option, Question } from "@/types/types"
+import { QuizData } from "@/types/types"
 import QuizDetails from "@/components/QuizDetails"
 import Questions from "@/components/Questions"
 import Settings from "@/components/Settings"
@@ -29,6 +22,13 @@ export default function CreateQuizPage() {
     description: "",
     category: "",
     questions: [],
+    settings: {
+      leaderboard: true,
+      shuffle: false,
+      reviewAnswers: true,
+      date: "",
+      time: "",
+    },
   })
 
   const updateQuizData = (field: keyof QuizData, value: any) => {
@@ -89,6 +89,7 @@ export default function CreateQuizPage() {
         <Settings 
           quizData={quizData}
           setActiveTab = {setActiveTab}
+          setQuizData={setQuizData}
           setErrors={setErrors}
         />
         
