@@ -27,3 +27,19 @@ export interface QuizData {
   settings: QuizSettings,
 }
 
+export interface Quiz {
+  id: string
+  title: string
+  description: string
+  category: string
+  questions: number
+  participants: number
+  status: "draft" | "scheduled" | "live" | "completed"
+  createdAt: string
+  scheduledAt?: string
+  completedAt?: string
+  thumbnail?: string
+  averageScore?: number
+  completionRate?: number
+}
+
