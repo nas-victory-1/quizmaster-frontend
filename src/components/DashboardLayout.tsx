@@ -16,10 +16,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
-    { icon: ListChecks, label: "Quizzes", href: "/dashboard/quizzes" },
-    { icon: Users, label: "Participants", href: "/dashboard/participants" },
-    { icon: BarChart, label: "Analytics", href: "/dashboard/analytics" },
-    { icon: Settings, label: "Settings", href: "/dashboard/settings" },
+    { icon: ListChecks, label: "Quizzes", href: "/quizzes" },
+    { icon: Users, label: "Participants", href: "/participants" },
+    { icon: BarChart, label: "Analytics", href: "/analytics" },
+    { icon: Settings, label: "Settings", href: "/settings" },
   ]
 
    const handleLogout = () => {

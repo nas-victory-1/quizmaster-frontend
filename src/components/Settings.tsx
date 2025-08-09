@@ -5,7 +5,6 @@ import { Switch } from "./ui/switch";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { QuizData } from "@/types/types";
-import { createQuiz } from "@/api/quiz";
 
 import { useRouter } from "next/navigation";
 
@@ -61,7 +60,10 @@ const Settings = ({quizData, setErrors, setActiveTab, setQuizData}: Props) => {
   const handleSaveQuiz = async() => {
     if (validateQuiz()) {
       try {
+        // console.log("Sendgin", quizData);
+        const { createQuiz } = await import("@/api/quiz");
         const res = await createQuiz(quizData);
+        // const res = await createQuiz(quizData);
         router.push('/dashboard')
         alert("Quiz saved successfully!")
         
