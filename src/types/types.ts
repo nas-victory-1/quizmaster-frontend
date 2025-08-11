@@ -32,7 +32,7 @@ export interface Quiz {
   title: string
   description: string
   category: string
-  questions: number
+  questions: Question[]
   participants: number
   status: "draft" | "scheduled" | "live" | "completed"
   createdAt: string

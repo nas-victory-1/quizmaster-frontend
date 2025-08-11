@@ -25,15 +25,15 @@ export const getStatusColor = (status: Quiz["status"]) => {
 export const getStatusIcon = (status: Quiz["status"]) => {
   switch (status) {
     case "draft":
-      return <FileText className="h-3 w-3" />;
+      return `<FileText className="h-3 w-3" />`;
     case "scheduled":
-      return <Clock className="h-3 w-3" />;
+      return `<Clock className="h-3 w-3" />`;
     case "live":
-      return <Play className="h-3 w-3" />;
+      return `<Play className="h-3 w-3" />`;
     case "completed":
-      return <CheckCircle2 className="h-3 w-3" />;
+      return `<CheckCircle2 className="h-3 w-3" />`;
     default:
-      return <FileText className="h-3 w-3" />;
+      return `<FileText className="h-3 w-3" />`;
   }
 };
 
