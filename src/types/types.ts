@@ -28,14 +28,16 @@ export interface QuizData {
 }
 
 export interface Quiz {
-  id: string
+  _id: string
   title: string
   description: string
   category: string
-  questions: number
+  questions: Question[]
   participants: number
   status: "draft" | "scheduled" | "live" | "completed"
   createdAt: string
+  settings: QuizSettings
+  isCorrect: Option
   scheduledAt?: string
   completedAt?: string
   thumbnail?: string

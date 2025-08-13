@@ -10,14 +10,9 @@ import { Clock } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Input } from "./ui/input";
-
-
 import Assistant from "@/components/Assistant"
 import { useState } from "react";
 import { QuizData, Question, Option } from "@/types/types";
-
-
-
 
 
 type Props = {

@@ -15,7 +15,7 @@ const HeroSection = () => {
                         generate questions or organize existing ones.
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4">
-                        <Link href="/dashboard">
+                        <Link href="/login">
                         <Button label="Get started for free" />
                         </Link>
                         {/* <Link href="/demo"> */}

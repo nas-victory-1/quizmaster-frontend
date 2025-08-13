@@ -5,8 +5,7 @@ import { Switch } from "./ui/switch";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { QuizData } from "@/types/types";
-import { createQuiz } from "@/api/quiz";
-
+import { useParams } from "next/navigation";
 import { useRouter } from "next/navigation";
 
 type Props = {
@@ -17,6 +16,7 @@ type Props = {
 }
 
 const Settings = ({quizData, setErrors, setActiveTab, setQuizData}: Props) => {
+  const { id } = useParams();
   const router = useRouter();
   const validateQuiz = () => {
 
@@ -58,18 +58,62 @@ const Settings = ({quizData, setErrors, setActiveTab, setQuizData}: Props) => {
         return newErrors.length === 0
   }
 
-  const handleSaveQuiz = async() => {
-    if (validateQuiz()) {
-      try {
-        const res = await createQuiz(quizData);
-        router.push('/dashboard')
-        alert("Quiz saved successfully!")
+  const handleSaveQuiz = async () => {
+  if (validateQuiz()) {
+    try {
+      let response;
+      
+      // ✅ Add debugging here
+      console.log("Quiz ID:", id);
+      console.log("API URL:", process.env.NEXT_PUBLIC_API_URL);
+      
+      if (id) {
+        // ✅ Editing existing quiz - UPDATE
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/quiz/quizzes/${id}`;
+        console.log("Updating quiz at URL:", url);
+        console.log("Quiz data being sent:", quizData);
         
-      } catch (error) {
-        console.error("Quiz creation failed:", error);
+        response = await fetch(url, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(quizData),
+        });
+        
+        console.log("Response status:", response.status);
+        console.log("Response ok:", response.ok);
+        
+      } else {
+        // ✅ Creating new quiz - CREATE
+        const url = `${process.env.NEXT_PUBLIC_API_URL}/quiz/create-quiz`;
+        console.log("Creating quiz at URL:", url);
+        
+        response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(quizData),
+        });
       }
+
+      if (!response.ok) {
+        // ✅ Get more details about the error
+        const errorText = await response.text();
+        console.log("Error response text:", errorText);
+        throw new Error(id ? `Failed to update quiz: ${response.status}` : 'Failed to create quiz');
+      }
+
+      alert(id ? "Quiz updated successfully!" : "Quiz created successfully!");
+      
+      if (!id) {
+        const newQuiz = await response.json();
+        router.push(`/dashboard/quizzes`);
+      }
+      
+    } catch (err) {
+      console.error('Full save error:', err);
+      alert(id ? "Failed to update quiz" : "Failed to create quiz");
     }
   }
+};
 
 
     return ( 
