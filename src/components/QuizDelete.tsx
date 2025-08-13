@@ -21,6 +21,26 @@ interface QuizDeleteProps {
 }
 
 const QuizDelete = ({ quiz, onDelete }: QuizDeleteProps) => {
+
+  const handleDelete = async () => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/quiz/quizzes/${quiz._id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete quiz');
+      }
+
+      // Call the onDelete callback to update the parent component
+      onDelete(quiz._id);
+      alert('Quiz deleted successfully!');
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Failed to delete quiz. Please try again.');
+    }
+  };
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -38,7 +58,10 @@ const QuizDelete = ({ quiz, onDelete }: QuizDeleteProps) => {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => onDelete(quiz.id)} className="bg-red-600 hover:bg-red-700">
+          <AlertDialogAction 
+            onClick={handleDelete} 
+            className="bg-red-600 hover:bg-red-700"
+          >
             Delete
           </AlertDialogAction>
         </AlertDialogFooter>
@@ -46,4 +69,5 @@ const QuizDelete = ({ quiz, onDelete }: QuizDeleteProps) => {
     </AlertDialog>
   )
 }
+
 export default QuizDelete;

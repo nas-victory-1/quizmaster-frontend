@@ -38,6 +38,19 @@ export default function QuizzesPage() {
     fetchQuizzes();
   }, []);
 
+  if(loading){
+    return (
+          <DashboardLayout>
+            <div className="flex items-center justify-center min-h-[400px]">
+              <div className="text-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4" />
+                <p className="text-gray-500">Loading quizzes...</p>
+              </div>
+            </div>
+          </DashboardLayout>
+        );
+  }
+
   // Filter and sort quizzes
   const filteredQuizzes = allQuizzes
     .filter((quiz) => {
@@ -70,8 +83,9 @@ export default function QuizzesPage() {
   }
 
   const deleteQuiz = (quizId: string) => {
-    console.log("Deleting quiz:", quizId)
-    alert("Quiz deleted successfully!")
+    // console.log("Deleting quiz:", quizId)
+    setAllQuizzes(prevQuizzes => prevQuizzes.filter(quiz => quiz._id !== quizId));
+    // alert("Quiz deleted successfully!")
   }
 
   const hasFilters = Boolean(searchQuery || statusFilter !== "all" || categoryFilter !== "all")
@@ -116,13 +130,13 @@ export default function QuizzesPage() {
           {viewMode === "grid" ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredQuizzes.map((quiz) => (
-                <QuizCard key={quiz.id} quiz={quiz} onDelete={deleteQuiz} onCopyLink={copyQuizLink} />
+                <QuizCard key={quiz._id} quiz={quiz} onDelete={deleteQuiz} onCopyLink={copyQuizLink} />
               ))}
             </div>
           ) : (
             <div className="space-y-4">
               {filteredQuizzes.map((quiz) => (
-                <QuizListItem key={quiz.id} quiz={quiz} onDelete={deleteQuiz} onCopyLink={copyQuizLink} />
+                <QuizListItem key={quiz._id} quiz={quiz} onDelete={deleteQuiz} onCopyLink={copyQuizLink} />
               ))}
             </div>
           )}

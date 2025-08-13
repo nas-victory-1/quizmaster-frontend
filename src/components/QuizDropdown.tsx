@@ -20,6 +20,7 @@ interface QuizDropdownProps {
 }
 
 const QuizDropdown = ({ quiz, onDelete, onCopyLink }: QuizDropdownProps)  => {
+  // console.log("received", quiz)
     return ( 
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -29,27 +30,27 @@ const QuizDropdown = ({ quiz, onDelete, onCopyLink }: QuizDropdownProps)  => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem asChild>
-          <Link href={`/dashboard/quizzes/${quiz.id}/edit`}>
+          <Link href={`/dashboard/quizzes/${quiz._id}/edit`}>
             <Edit className="h-4 w-4 mr-2" />
             Edit Quiz
           </Link>
         </DropdownMenuItem>
         {quiz.status !== "draft" && (
-          <DropdownMenuItem onClick={() => onCopyLink(quiz.id)}>
+          <DropdownMenuItem onClick={() => onCopyLink(quiz._id)}>
             <Share2 className="h-4 w-4 mr-2" />
             Share Quiz
           </DropdownMenuItem>
         )}
         {quiz.status === "completed" && (
           <DropdownMenuItem asChild>
-            <Link href={`/dashboard/quizzes/${quiz.id}/results`}>
+            <Link href={`/dashboard/quizzes/${quiz._id}/results`}>
               <BarChart className="h-4 w-4 mr-2" />
               View Results
             </Link>
           </DropdownMenuItem>
         )}
         <DropdownMenuItem asChild>
-          <Link href={`/quiz/${quiz.id}`}>
+          <Link href={`/dashboard/quizzes/${quiz._id}/preview`}>
             <Eye className="h-4 w-4 mr-2" />
             Preview Quiz
           </Link>

@@ -69,7 +69,7 @@ const QuizListItem = ({ quiz, onDelete, onCopyLink }: QuizListItemProps) => {
                 <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
                   <span className="flex items-center">
                     <FileText className="h-3 w-3 mr-1" />
-                    {quiz.questions?.length || 0} questions
+                    {quiz.questions?.length || 0} question(s)
                   </span>
                   <span className="flex items-center">
                     <Users className="h-3 w-3 mr-1" />
@@ -84,7 +84,7 @@ const QuizListItem = ({ quiz, onDelete, onCopyLink }: QuizListItemProps) => {
               <div className="flex items-center gap-2 ml-4">
                 <Badge className={`${getStatusColor(quiz.status)} flex items-center gap-1`}>
                   {getStatusIcon(quiz.status)}
-                  {quiz.questions?.length || 0} questions
+                  {quiz.questions?.length || 0} question(s)
                 </Badge>
                 <QuizDropdown quiz={quiz} onDelete={onDelete} onCopyLink={onCopyLink} />
               </div>
