@@ -1,3 +1,4 @@
+'use client'
 import { TabsContent } from "./ui/tabs";
 import { Card, CardContent } from "./ui/card";
 import { Label } from "./ui/label";
@@ -5,8 +6,8 @@ import { Switch } from "./ui/switch";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { QuizData } from "@/types/types";
-import { useParams } from "next/navigation";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 
 type Props = {
     quizData: QuizData,
@@ -15,7 +16,9 @@ type Props = {
     setQuizData: React.Dispatch<React.SetStateAction<QuizData>>, 
 }
 
+
 const Settings = ({quizData, setErrors, setActiveTab, setQuizData}: Props) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { id } = useParams();
   const router = useRouter();
   const validateQuiz = () => {
@@ -59,7 +62,8 @@ const Settings = ({quizData, setErrors, setActiveTab, setQuizData}: Props) => {
   }
 
   const handleSaveQuiz = async () => {
-  if (validateQuiz()) {
+  if (validateQuiz() && !isSubmitting) {
+    setIsSubmitting(true);
     try {
       let response;
       
@@ -111,6 +115,8 @@ const Settings = ({quizData, setErrors, setActiveTab, setQuizData}: Props) => {
     } catch (err) {
       console.error('Full save error:', err);
       alert(id ? "Failed to update quiz" : "Failed to create quiz");
+    }finally{
+      setIsSubmitting(false);
     }
   }
 };
@@ -234,7 +240,7 @@ const Settings = ({quizData, setErrors, setActiveTab, setQuizData}: Props) => {
             <Button variant="outline" onClick={() => setActiveTab("questions")}>
               Back to Questions
             </Button>
-            <Button onClick={handleSaveQuiz} className="bg-purple-600 hover:bg-purple-700">
+            <Button onClick={handleSaveQuiz} disabled={isSubmitting} className={`bg-purple-600 hover:bg-purple-700 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}>
               Save and Publish Quiz
             </Button>
           </div>

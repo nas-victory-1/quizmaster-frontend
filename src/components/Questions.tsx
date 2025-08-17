@@ -125,9 +125,9 @@ const Questions = ({quizData, setQuizData, setActiveTab}: Props) => {
                   AI Assistant
                 </Label>
               </div>
-              <Button onClick={addQuestion}>
+              {/* <Button onClick={addQuestion}>
                 <Plus className="h-4 w-4 mr-1" /> Add Question
-              </Button>
+              </Button> */}
             </div>
           </div>
 
@@ -230,6 +230,11 @@ const Questions = ({quizData, setQuizData, setActiveTab}: Props) => {
             <Button variant="outline" onClick={() => setActiveTab("details")}>
               Back to Details
             </Button>
+
+            <Button onClick={addQuestion}>
+                <Plus className="h-4 w-4 mr-1" /> Add Question
+            </Button>
+
             <Button onClick={() => setActiveTab("settings")} className="bg-purple-600 hover:bg-purple-700">
               Continue to Settings
             </Button>

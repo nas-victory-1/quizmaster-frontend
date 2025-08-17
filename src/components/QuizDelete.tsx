@@ -35,6 +35,7 @@ const QuizDelete = ({ quiz, onDelete }: QuizDeleteProps) => {
       // Call the onDelete callback to update the parent component
       onDelete(quiz._id);
       alert('Quiz deleted successfully!');
+      
     } catch (error) {
       console.error('Delete error:', error);
       alert('Failed to delete quiz. Please try again.');
