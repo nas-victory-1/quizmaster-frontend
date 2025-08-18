@@ -1,19 +1,7 @@
 'use client'
-// pages/join.tsx (or app/join/page.tsx for App Router)
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-
-interface JoinQuizResponse {
-  success: boolean;
-  data?: {
-    sessionId: string;
-    participantId: string;
-    quizTitle: string;
-    status: string;
-    participantCount: number;
-  };
-  error?: string;
-}
+import { joinQuizSession } from '@/api/session';
 
 export default function JoinQuiz() {
   const [code, setCode] = useState('');
@@ -34,29 +22,22 @@ export default function JoinQuiz() {
     setError('');
 
     try {
-      const response = await fetch('/api/quiz/join', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          code: code.trim().toUpperCase(),
-          participantName: name.trim(),
-        }),
+      const response = await joinQuizSession({
+        code: code.trim().toUpperCase(),
+        participantName: name.trim()
       });
 
-      const data: JoinQuizResponse = await response.json();
-
-      if (data.success && data.data) {
-        // Store participant info in localStorage for the session
-        localStorage.setItem('participantId', data.data.participantId);
-        localStorage.setItem('sessionId', data.data.sessionId);
+      if (response.success) {
+        // Store participant info in localStorage
+        localStorage.setItem('participantId', response.data.participantId);
+        localStorage.setItem('sessionId', response.data.sessionId);
         localStorage.setItem('participantName', name.trim());
+        localStorage.setItem('quizTitle', response.data.quizTitle);
         
-        // Redirect to quiz waiting room or quiz page
-        router.push(`/quiz/${data.data.sessionId}`);
+        // Redirect to waiting room
+        router.push(`/quiz/${response.data.sessionId}/waiting`);
       } else {
-        setError(data.error || 'Failed to join quiz');
+        setError(response.error || 'Failed to join quiz');
       }
     } catch (err) {
       setError('Network error. Please try again.');

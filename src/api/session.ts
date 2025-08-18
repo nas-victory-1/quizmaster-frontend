@@ -24,6 +24,6 @@ export const getSessionInfo = async (code: string) => {
 };
 
 export const startQuizSession = async (sessionId: string) => {
-  const res = await api.patch(`/start/${sessionId}`);
+  const res = await api.post(`/start/${sessionId}`);
   return res.data;
 };

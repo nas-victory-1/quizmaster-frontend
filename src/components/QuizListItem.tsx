@@ -8,9 +8,10 @@ interface QuizListItemProps {
   quiz: Quiz
   onDelete: (quizId: string) => void
   onCopyLink: (quizId: string) => void
+  onClick: (quizId:string) => void
 }
 
-const QuizListItem = ({ quiz, onDelete, onCopyLink }: QuizListItemProps) => {
+const QuizListItem = ({ quiz, onDelete, onCopyLink, onClick }: QuizListItemProps) => {
   
   const getStatusColor = (status: Quiz["status"]) => {
     switch (status) {
@@ -53,7 +54,7 @@ const QuizListItem = ({ quiz, onDelete, onCopyLink }: QuizListItemProps) => {
   return (
    <Card className="hover:shadow-md transition-shadow">
       <CardContent className="p-4">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4" onClick={()=>{onClick?.(quiz._id)}}>
           <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
             <img
               src={quiz.thumbnail || "/placeholder.svg?height=64&width=64"}

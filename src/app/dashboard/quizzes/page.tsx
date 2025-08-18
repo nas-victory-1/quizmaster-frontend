@@ -11,6 +11,7 @@ import QuizCard from "@/components/QuizCard"
 import QuizListItem from "@/components/QuizListItem"
 import QuizFilters from "@/components/QuizFilters"
 import QuizEmptyState from "@/components/QuizEmptyState"
+import { useRouter } from "next/navigation"
 
 
 export default function QuizzesPage() {
@@ -21,6 +22,9 @@ export default function QuizzesPage() {
   const [sortBy, setSortBy] = useState<string>("recent")
   const [allQuizzes, setAllQuizzes] = useState<Quiz[]>([])
   const [loading, setLoading] = useState(true)
+
+
+  const router = useRouter()  
 
   useEffect(() => {
     const fetchQuizzes = async () => {
@@ -50,6 +54,10 @@ export default function QuizzesPage() {
           </DashboardLayout>
         );
   }
+
+  const goToWaitingRoom = (quizId: string) => {
+    router.push(`/dashboard/quizzes/${quizId}/waiting-room`);
+  };
 
   // Filter and sort quizzes
   const filteredQuizzes = allQuizzes
@@ -130,13 +138,13 @@ export default function QuizzesPage() {
           {viewMode === "grid" ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredQuizzes.map((quiz) => (
-                <QuizCard key={quiz._id} quiz={quiz} onDelete={deleteQuiz} onCopyLink={copyQuizLink} />
+                <QuizCard key={quiz._id} quiz={quiz} onDelete={deleteQuiz} onCopyLink={copyQuizLink} onClick = {goToWaitingRoom}/>
               ))}
             </div>
           ) : (
             <div className="space-y-4">
               {filteredQuizzes.map((quiz) => (
-                <QuizListItem key={quiz._id} quiz={quiz} onDelete={deleteQuiz} onCopyLink={copyQuizLink} />
+                <QuizListItem key={quiz._id} quiz={quiz} onDelete={deleteQuiz} onCopyLink={copyQuizLink} onClick = {goToWaitingRoom}/>
               ))}
             </div>
           )}
