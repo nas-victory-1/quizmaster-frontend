@@ -7,7 +7,7 @@ import { getSessionInfo, startQuizSession } from '@/api/session';
 export default function WaitingRoom() {
   const router = useRouter();
   const params = useParams();
-  const sessionId = params.sessionId;
+  const sessionId = params.id;
   const [quizTitle, setQuizTitle] = useState('');
   const [quizCode, setQuizCode] = useState('');
   const [isCreator, setIsCreator] = useState(false);
@@ -16,52 +16,100 @@ export default function WaitingRoom() {
   const { socket, isConnected, participantCount, joinRoom, startQuiz } = useSocket(sessionId as string);
 
   useEffect(() => {
-    if (!sessionId) return;
+    if (!sessionId) {
+      console.log('No sessionId, returning');
+      setLoading(false); // Don't leave loading forever
+      return;
+    }
 
     // Get session details and determine if user is creator
     const initializeRoom = async () => {
       try {
+        console.log('=== DEBUG START ===');
+        console.log('SessionId from URL:', sessionId);
+
         // Check localStorage for role
         const storedIsCreator = localStorage.getItem('isCreator') === 'true';
         const participantId = localStorage.getItem('participantId');
         const participantName = localStorage.getItem('participantName');
         const storedQuizTitle = localStorage.getItem('quizTitle');
+        const storedQuizCode = localStorage.getItem('quizCode');
+
+        console.log('Is Creator:', storedIsCreator);
+        console.log('Participant ID:', participantId);
+        console.log('Participant Name:', participantName);
+        console.log('Stored Quiz Title:', storedQuizTitle);
+        console.log('Quiz Code from localStorage:', storedQuizCode);
 
         setIsCreator(storedIsCreator);
 
+        // Always set title from localStorage first if available
         if (storedQuizTitle) {
+          console.log('Setting quiz title from localStorage:', storedQuizTitle);
           setQuizTitle(storedQuizTitle);
         }
 
         // Get session info including code
-        const response = await getSessionInfo(
-          storedIsCreator ? localStorage.getItem('quizCode') || '' : ''
-        );
-
-        if (response.success) {
-          setQuizTitle(response.data.title);
-          setQuizCode(response.data.code);
+        if (storedQuizCode) {
+          console.log('About to call getSessionInfo with code:', storedQuizCode);
+          
+          try {
+            const response = await getSessionInfo(storedQuizCode);
+            console.log('getSessionInfo response:', response);
+            
+            if (response.success) {
+              console.log('Setting title and code from API response');
+              console.log('API Title:', response.data.title);
+              setQuizTitle(response.data.title);
+              setQuizCode(storedQuizCode); // Use the code from localStorage
+            } else {
+              console.log('API response was not successful:', response);
+              // Still set the code from localStorage for display
+              setQuizCode(storedQuizCode);
+            }
+          } catch (apiError) {
+            console.error('API call failed:', apiError);
+            // Fallback: use localStorage data
+            setQuizCode(storedQuizCode);
+            if (!quizTitle && storedQuizTitle) {
+              setQuizTitle(storedQuizTitle);
+            }
+          }
+        } else {
+          console.log('No quiz code found in localStorage');
+          // If no quiz code, this might be a participant who hasn't joined yet
         }
 
-        // Join socket room
-        if (socket && sessionId) {
-          joinRoom({
-            sessionId: sessionId as string,
-            participantId: participantId || undefined,
-            participantName: participantName || undefined,
-            isCreator: storedIsCreator,
-          });
-        }
-
-        setLoading(false);
-      } catch (error) {
+        console.log('=== DEBUG END - Setting loading to false ===');
+      } catch (error: any) {
         console.error('Error initializing room:', error);
+        console.error('Error details:', error.message);
+      } finally {
+        // Always set loading to false, regardless of success or failure
         setLoading(false);
       }
     };
 
     initializeRoom();
-  }, [sessionId, socket, joinRoom]);
+  }, [sessionId]); // Only depend on sessionId - this is stable
+
+  // Handle socket room joining in a separate useEffect
+  useEffect(() => {
+    if (socket && sessionId && !loading) {
+      console.log('Joining socket room...');
+      
+      const storedIsCreator = localStorage.getItem('isCreator') === 'true';
+      const participantId = localStorage.getItem('participantId');
+      const participantName = localStorage.getItem('participantName');
+      
+      joinRoom({
+        sessionId: sessionId as string,
+        participantId: participantId || undefined,
+        participantName: participantName || undefined,
+        isCreator: storedIsCreator,
+      });
+    }
+  }, [socket, sessionId, loading, joinRoom]); // Separate effect for socket operations
 
   // Listen for quiz start
   useEffect(() => {
@@ -79,11 +127,17 @@ export default function WaitingRoom() {
   }, [socket, sessionId, router]);
 
   const handleStartQuiz = async () => {
-    if (socket && participantCount > 0) {
+    if (participantCount > 0) {  // Remove socket dependency for now
       try {
         await startQuizSession(sessionId as string);
-        // The socket will handle notifying participants
-        startQuiz(sessionId as string);
+        
+        // If socket is available, use it; otherwise just navigate
+        if (socket && isConnected) {
+          startQuiz(sessionId as string);
+        } else {
+          // Fallback: direct navigation if socket isn't working
+          router.push(`/quiz/${sessionId}/play`);
+        }
       } catch (error) {
         console.error('Failed to start quiz:', error);
       }
@@ -102,13 +156,13 @@ export default function WaitingRoom() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-purple-600"></div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-2xl mx-auto">
           {/* Header */}
@@ -121,7 +175,7 @@ export default function WaitingRoom() {
               <span className={`inline-block px-3 py-1 rounded-full text-sm ${
                 isConnected ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
               }`}>
-                {isConnected ? 'Connected' : 'Connecting...'}
+                {isConnected ? 'Connected' : 'Disconnected'}
               </span>
             </div>
           </div>
@@ -138,7 +192,7 @@ export default function WaitingRoom() {
                 </div>
                 <button
                   onClick={copyCode}
-                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+                  className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
                 >
                   Copy Code
                 </button>
@@ -149,7 +203,7 @@ export default function WaitingRoom() {
           {/* Participant Count */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
             <div className="text-center">
-              <div className="text-4xl font-bold text-blue-600 mb-2">{participantCount}</div>
+              <div className="text-4xl font-bold text-purple-600 mb-2">{participantCount}</div>
               <div className="text-gray-600">
                 {participantCount === 1 ? 'Participant' : 'Participants'} joined
               </div>
@@ -162,9 +216,9 @@ export default function WaitingRoom() {
                   {Array.from({ length: Math.min(participantCount, 10) }).map((_, index) => (
                     <div
                       key={index}
-                      className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center"
+                      className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center"
                     >
-                      <div className="w-4 h-4 bg-blue-500 rounded-full"></div>
+                      <div className="w-4 h-4 bg-purple-500 rounded-full"></div>
                     </div>
                   ))}
                   {participantCount > 10 && (
@@ -183,7 +237,7 @@ export default function WaitingRoom() {
               <div className="space-y-4">
                 <button
                   onClick={handleStartQuiz}
-                  disabled={participantCount === 0 || !isConnected}
+                  disabled={participantCount === 0}
                   className="bg-green-600 text-white px-8 py-3 rounded-md hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-semibold text-lg"
                 >
                   {participantCount === 0 
@@ -193,6 +247,11 @@ export default function WaitingRoom() {
                 </button>
                 <p className="text-sm text-gray-500 mt-2">
                   Quiz will start for all participants when you click start
+                  {!isConnected && (
+                    <span className="block text-orange-600 mt-1">
+                      Real-time features unavailable - participants won't get instant notifications
+                    </span>
+                  )}
                 </p>
               </div>
             ) : (

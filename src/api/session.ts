@@ -1,4 +1,4 @@
-import api from 'axios';
+import api from './axios';
 
 
 export const createQuizSession = async (payload: {
@@ -6,7 +6,7 @@ export const createQuizSession = async (payload: {
   questions: any[];
   creatorId: string;
 }) => {
-  const res = await api.post('/create', payload);
+  const res = await api.post('/session/create', payload);
   return res.data;
 };
 
@@ -14,16 +14,16 @@ export const joinQuizSession = async (payload: {
   code: string;
   participantName: string;
 }) => {
-  const res = await api.post(`/join`, payload);
+  const res = await api.post(`/session/join`, payload);
   return res.data;
 };
 
 export const getSessionInfo = async (code: string) => {
-  const res = await api.get(`/${code}`);
+  const res = await api.get(`/session/${code}`);
   return res.data;
 };
 
 export const startQuizSession = async (sessionId: string) => {
-  const res = await api.post(`/start/${sessionId}`);
+  const res = await api.post(`/session/start/${sessionId}`);
   return res.data;
 };
