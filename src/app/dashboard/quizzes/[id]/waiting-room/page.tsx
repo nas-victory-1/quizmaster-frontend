@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useSocket } from '@/hooks/useSocket';
-import { getSessionInfo, startQuizSession } from '@/api/session';
+import { startQuizSession } from '@/api/session';
 
 export default function WaitingRoom() {
   const router = useRouter();
@@ -18,7 +18,7 @@ export default function WaitingRoom() {
   useEffect(() => {
     if (!sessionId) {
       console.log('No sessionId, returning');
-      setLoading(false); // Don't leave loading forever
+      setLoading(false);
       return;
     }
 
@@ -28,70 +28,48 @@ export default function WaitingRoom() {
         console.log('=== DEBUG START ===');
         console.log('SessionId from URL:', sessionId);
 
-        // Check localStorage for role
+        // Check localStorage for role and data
         const storedIsCreator = localStorage.getItem('isCreator') === 'true';
         const participantId = localStorage.getItem('participantId');
         const participantName = localStorage.getItem('participantName');
         const storedQuizTitle = localStorage.getItem('quizTitle');
         const storedQuizCode = localStorage.getItem('quizCode');
 
+        console.log('All localStorage items:');
         console.log('Is Creator:', storedIsCreator);
         console.log('Participant ID:', participantId);
         console.log('Participant Name:', participantName);
         console.log('Stored Quiz Title:', storedQuizTitle);
-        console.log('Quiz Code from localStorage:', storedQuizCode);
+        console.log('Stored Quiz Code:', storedQuizCode);
 
         setIsCreator(storedIsCreator);
 
-        // Always set title from localStorage first if available
+        // Set data from localStorage (this should be sufficient for now)
         if (storedQuizTitle) {
           console.log('Setting quiz title from localStorage:', storedQuizTitle);
           setQuizTitle(storedQuizTitle);
         }
 
-        // Get session info including code
         if (storedQuizCode) {
-          console.log('About to call getSessionInfo with code:', storedQuizCode);
-          
-          try {
-            const response = await getSessionInfo(storedQuizCode);
-            console.log('getSessionInfo response:', response);
-            
-            if (response.success) {
-              console.log('Setting title and code from API response');
-              console.log('API Title:', response.data.title);
-              setQuizTitle(response.data.title);
-              setQuizCode(storedQuizCode); // Use the code from localStorage
-            } else {
-              console.log('API response was not successful:', response);
-              // Still set the code from localStorage for display
-              setQuizCode(storedQuizCode);
-            }
-          } catch (apiError) {
-            console.error('API call failed:', apiError);
-            // Fallback: use localStorage data
-            setQuizCode(storedQuizCode);
-            if (!quizTitle && storedQuizTitle) {
-              setQuizTitle(storedQuizTitle);
-            }
-          }
-        } else {
-          console.log('No quiz code found in localStorage');
-          // If no quiz code, this might be a participant who hasn't joined yet
+          console.log('Setting quiz code from localStorage:', storedQuizCode);
+          setQuizCode(storedQuizCode);
         }
+
+        // For now, skip the API call since we don't have the right data structure
+        // The API expects a quiz code but we only have sessionId
+        // We'll use localStorage data which should have everything we need
 
         console.log('=== DEBUG END - Setting loading to false ===');
       } catch (error: any) {
         console.error('Error initializing room:', error);
         console.error('Error details:', error.message);
       } finally {
-        // Always set loading to false, regardless of success or failure
         setLoading(false);
       }
     };
 
     initializeRoom();
-  }, [sessionId]); // Only depend on sessionId - this is stable
+  }, [sessionId]);
 
   // Handle socket room joining in a separate useEffect
   useEffect(() => {
@@ -109,7 +87,7 @@ export default function WaitingRoom() {
         isCreator: storedIsCreator,
       });
     }
-  }, [socket, sessionId, loading, joinRoom]); // Separate effect for socket operations
+  }, [socket, sessionId, loading, joinRoom]);
 
   // Listen for quiz start
   useEffect(() => {
@@ -127,7 +105,7 @@ export default function WaitingRoom() {
   }, [socket, sessionId, router]);
 
   const handleStartQuiz = async () => {
-    if (participantCount > 0) {  // Remove socket dependency for now
+    if (participantCount > 0) {
       try {
         await startQuizSession(sessionId as string);
         
@@ -167,7 +145,9 @@ export default function WaitingRoom() {
         <div className="max-w-2xl mx-auto">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{quizTitle}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              {quizTitle || 'Quiz Session'}
+            </h1>
             <p className="text-lg text-gray-600">
               {isCreator ? 'Waiting for participants to join...' : 'Waiting for quiz to start...'}
             </p>
@@ -199,6 +179,7 @@ export default function WaitingRoom() {
               </div>
             </div>
           )}
+
 
           {/* Participant Count */}
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">

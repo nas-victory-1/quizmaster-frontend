@@ -11,26 +11,30 @@ export const useSocket = (sessionId?: string) => {
   useEffect(() => {
     if (!sessionId) return;
 
-    const socketInstance = io(SOCKET_URL);
+    const socketInstance = io(SOCKET_URL, {
+      timeout: 5000,
+      reconnection: false, // Don't keep retrying if server is down
+    });
+    
     setSocket(socketInstance);
 
     socketInstance.on('connect', () => {
+      console.log('Socket connected successfully');
       setIsConnected(true);
+    });
+
+    socketInstance.on('connect_error', (error) => {
+      console.log('Socket connection failed - running in offline mode');
+      setIsConnected(false);
+      // Don't spam with reconnection attempts
     });
 
     socketInstance.on('disconnect', () => {
       setIsConnected(false);
     });
 
-    socketInstance.on('participant-joined', (data) => {
-      setParticipantCount(data.participantCount);
-    });
-
-    socketInstance.on('participant-count-update', (data) => {
-      setParticipantCount(data.participantCount);
-    });
-
-    socketInstance.on('participant-left', (data) => {
+    // Listen for participant count updates
+    socketInstance.on('participant-count-update', (data: { participantCount: number }) => {
       setParticipantCount(data.participantCount);
     });
 
@@ -76,3 +80,6 @@ export const useSocket = (sessionId?: string) => {
     nextQuestion,
   };
 };
+
+// Add default export
+export default useSocket;
