@@ -8,9 +8,10 @@ interface QuizCardProps {
   quiz: Quiz
   onDelete: (quizId: string) => void
   onCopyLink: (quizId: string) => void
+  onClick: (quizId: string) => void; 
 }
 
-const QuizCard = ({ quiz, onDelete, onCopyLink }: QuizCardProps) => {
+const QuizCard = ({ quiz, onDelete, onCopyLink, onClick }: QuizCardProps) => {
   const getStatusColor = (status: Quiz["status"]) => {
     switch (status) {
       case "draft":
@@ -61,7 +62,7 @@ const QuizCard = ({ quiz, onDelete, onCopyLink }: QuizCardProps) => {
 
   return (
     <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <div className="aspect-video relative overflow-hidden bg-gray-100">
+      <div className="aspect-video relative overflow-hidden bg-gray-100" onClick={()=>{onClick?.(quiz._id)}}>
         <img
           src={quiz.thumbnail || "/placeholder.svg?height=200&width=300"}
           alt={quiz.title}
