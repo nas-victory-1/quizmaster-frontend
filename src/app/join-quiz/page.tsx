@@ -33,14 +33,17 @@ export default function JoinQuiz() {
         localStorage.setItem('sessionId', response.data.sessionId);
         localStorage.setItem('participantName', name.trim());
         localStorage.setItem('quizTitle', response.data.quizTitle);
+        localStorage.setItem('quizCode', code.trim().toUpperCase()); // Store the quiz code!
+        localStorage.setItem('isCreator', 'false'); // Mark as participant
         
         // Redirect to waiting room
-        router.push(`/quiz/${response.data.sessionId}/waiting`);
+        router.push(`/dashboard/quizzes/${response.data.sessionId}/waiting-room`);
       } else {
         setError(response.error || 'Failed to join quiz');
       }
     } catch (err) {
       setError('Network error. Please try again.');
+      console.error(err);
     } finally {
       setLoading(false);
     }
