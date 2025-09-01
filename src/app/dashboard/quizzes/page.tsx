@@ -5,6 +5,7 @@ import Link from "next/link"
 import DashboardLayout from "@/components/DashboardLayout"
 import { Quiz } from "@/types/types"
 import { getAllQuizzes } from "@/api/quiz"
+import { createQuizSession } from "@/api/session"
 import { Button } from "@/components/ui/button"
 import { PlusCircle } from "lucide-react"
 import QuizCard from "@/components/QuizCard"
@@ -12,7 +13,6 @@ import QuizListItem from "@/components/QuizListItem"
 import QuizFilters from "@/components/QuizFilters"
 import QuizEmptyState from "@/components/QuizEmptyState"
 import { useRouter } from "next/navigation"
-
 
 export default function QuizzesPage() {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
@@ -22,7 +22,7 @@ export default function QuizzesPage() {
   const [sortBy, setSortBy] = useState<string>("recent")
   const [allQuizzes, setAllQuizzes] = useState<Quiz[]>([])
   const [loading, setLoading] = useState(true)
-
+  const [creatingSession, setCreatingSession] = useState<string | null>(null)
 
   const router = useRouter()  
 
@@ -42,6 +42,61 @@ export default function QuizzesPage() {
     fetchQuizzes();
   }, []);
 
+  const goToWaitingRoom = async (quizId: string) => {
+    try {
+      setCreatingSession(quizId);
+      
+      // Find the quiz data
+      const quiz = allQuizzes.find(q => q._id === quizId);
+      if (!quiz) {
+        console.error('Quiz not found');
+        return;
+      }
+
+      console.log('Creating session for quiz:', quiz.title);
+
+      
+
+      // Create a new session for this quiz
+      const sessionResponse = await createQuizSession({
+        title: quiz.title,
+        creatorId: 'current-user-id', //todo: Replace with actual user ID when you have auth
+        questions: quiz.questions.map((q) => ({
+          question: q.text,
+          options: q.options.map((opt) => opt.text),
+          correctAnswer: q.options.findIndex((opt) => opt.isCorrect),
+        })),
+      });
+
+      console.log('Session created:', sessionResponse);
+
+      if (sessionResponse.success) {
+        // Store session data in localStorage
+        localStorage.setItem('isCreator', 'true');
+        localStorage.setItem('quizTitle', quiz.title);
+        localStorage.setItem('quizCode', sessionResponse.data.code);
+        localStorage.setItem('sessionId', sessionResponse.data.sessionId);
+        
+        console.log('Stored in localStorage:');
+        console.log('- isCreator: true');
+        console.log('- quizTitle:', quiz.title);
+        console.log('- quizCode:', sessionResponse.data.code);
+        console.log('- sessionId:', sessionResponse.data.sessionId);
+
+        // Navigate to session waiting room
+        router.push(`quizzes/${sessionResponse.data.sessionId}/waiting-room`);
+      } else {
+        console.error('Failed to create session:', sessionResponse);
+        alert('Failed to create quiz session. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error creating session:', error);
+      alert('Failed to create quiz session. Please try again.');
+    } finally {
+      setCreatingSession(null);
+    }
+  };
+
   if(loading){
     return (
           <DashboardLayout>
@@ -54,10 +109,6 @@ export default function QuizzesPage() {
           </DashboardLayout>
         );
   }
-
-  const goToWaitingRoom = (quizId: string) => {
-    router.push(`/dashboard/quizzes/${quizId}/waiting-room`);
-  };
 
   // Filter and sort quizzes
   const filteredQuizzes = allQuizzes
@@ -91,9 +142,7 @@ export default function QuizzesPage() {
   }
 
   const deleteQuiz = (quizId: string) => {
-    // console.log("Deleting quiz:", quizId)
     setAllQuizzes(prevQuizzes => prevQuizzes.filter(quiz => quiz._id !== quizId));
-    // alert("Quiz deleted successfully!")
   }
 
   const hasFilters = Boolean(searchQuery || statusFilter !== "all" || categoryFilter !== "all")
@@ -138,13 +187,43 @@ export default function QuizzesPage() {
           {viewMode === "grid" ? (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredQuizzes.map((quiz) => (
-                <QuizCard key={quiz._id} quiz={quiz} onDelete={deleteQuiz} onCopyLink={copyQuizLink} onClick = {goToWaitingRoom}/>
+                <div key={quiz._id} className="relative">
+                  <QuizCard 
+                    quiz={quiz} 
+                    onDelete={deleteQuiz} 
+                    onCopyLink={copyQuizLink} 
+                    onClick={goToWaitingRoom}
+                  />
+                  {creatingSession === quiz._id && (
+                    <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600 mx-auto mb-2" />
+                        <p className="text-sm text-gray-600">Creating session...</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           ) : (
             <div className="space-y-4">
               {filteredQuizzes.map((quiz) => (
-                <QuizListItem key={quiz._id} quiz={quiz} onDelete={deleteQuiz} onCopyLink={copyQuizLink} onClick = {goToWaitingRoom}/>
+                <div key={quiz._id} className="relative">
+                  <QuizListItem 
+                    quiz={quiz} 
+                    onDelete={deleteQuiz} 
+                    onCopyLink={copyQuizLink} 
+                    onClick={goToWaitingRoom}
+                  />
+                  {creatingSession === quiz._id && (
+                    <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600 mx-auto mb-2" />
+                        <p className="text-sm text-gray-600">Creating session...</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
               ))}
             </div>
           )}
