@@ -91,7 +91,7 @@ export default function WaitingRoom() {
   if (!socket) return;
 
   const handleQuizStart = () => {
-    router.push(`/quiz/${sessionId}/play`);
+    router.push(`start`);
   };
 
   const handleParticipantJoined = (data: { participantId: string; participantName: string }) => {
@@ -143,7 +143,7 @@ export default function WaitingRoom() {
         startQuiz(sessionId as string);
       } else {
         // Fallback: direct navigation if socket isn't working
-        router.push(`/quiz/${sessionId}/play`);
+        router.push(`/quiz/${sessionId}/start`);
       }
     } catch (error) {
       console.error('Failed to start quiz:', error);

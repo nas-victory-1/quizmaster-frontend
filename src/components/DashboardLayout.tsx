@@ -62,8 +62,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <AvatarFallback>JD</AvatarFallback>
             </Avatar>
             <div>
-              <div className="font-medium">Jane Doe</div>
-              <div className="text-sm text-gray-500">jane@example.com</div>
+              <div className="font-medium">Nasser J. Samiru</div>
+              <div className="text-sm text-gray-500">nasserjadagwa@gmail.com</div>
             </div>
           </div>
           <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleLogout}>
