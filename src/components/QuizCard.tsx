@@ -68,12 +68,12 @@ const QuizCard = ({ quiz, onDelete, onCopyLink, onClick }: QuizCardProps) => {
           alt={quiz.title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute top-2 right-2">
+        {/* <div className="absolute top-2 right-2">
           <Badge className={`${getStatusColor(quiz.status)} flex items-center gap-1`}>
             {getStatusIcon(quiz.status)}
             {quiz.status?.charAt(0).toUpperCase() + quiz.status?.slice(1) || "Unknown"}
           </Badge>
-        </div>
+        </div> */}
       </div>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">

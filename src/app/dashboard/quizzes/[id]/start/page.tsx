@@ -61,7 +61,7 @@ export default function QuizStart() {
     answers.forEach((answer, index) => {
       if (answer === quizData.questions[index]?.correctAnswer) {
         // Base score + time bonus (if answer was quick)
-        score += 1000;
+        score += 1;
       }
     });
     return score;
@@ -168,6 +168,27 @@ export default function QuizStart() {
   useEffect(() => {
     setCurrentScore(calculateScore());
   }, [answers, quizData]);
+
+
+  // Add this useEffect to join socket room when quiz starts
+useEffect(() => {
+  if (socket && sessionId && !loading) {
+    const storedIsCreator = localStorage.getItem('isCreator') === 'true';
+    const participantId = localStorage.getItem('participantId');
+    const participantName = localStorage.getItem('participantName');
+    
+    // Join the socket room for quiz play
+    socket.emit('join-quiz-room', {
+      sessionId: sessionId as string,
+      participantId: participantId || undefined,
+      participantName: participantName || undefined,
+      isCreator: storedIsCreator,
+    });
+
+    console.log('Joined quiz room:', sessionId);
+  }
+}, [socket, sessionId, loading]);
+
 
   const startQuestion = (questionIndex: number, question: Question) => {
     const timeLimit = question.timeLimit || 30;
