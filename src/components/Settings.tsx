@@ -321,7 +321,7 @@ const Settings = ({quizData, setErrors, setActiveTab, setQuizData}: Props) => {
           Back to Questions
         </Button>
         <div className="text-sm text-gray-500">
-          Choose how you want to use your quiz above ↗️
+          Choose how you want to use your quiz above
         </div>
       </div>
     </TabsContent>

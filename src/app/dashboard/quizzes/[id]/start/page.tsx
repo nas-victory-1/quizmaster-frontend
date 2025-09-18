@@ -355,11 +355,11 @@ useEffect(() => {
             )}
 
             <div className="flex gap-4 justify-center">
-              <Button onClick={() => router.push("/dashboard")}>
+              <Button onClick={() => router.push(`${isCreator ? '/dashboard' : 'leaderboard'}`)}>
                 {isCreator ? "Back to Dashboard" : "Exit Quiz"}
               </Button>
               {isCreator && quizData.id && (
-                <Button variant="outline" onClick={() => router.push(`/dashboard/quizzes/${quizData.id}/results`)}>
+                <Button variant="outline" onClick={() => router.push(`/dashboard/quizzes/${quizData.id}/leaderboard`)}>
                   View Results
                 </Button>
               )}
@@ -471,7 +471,7 @@ useEffect(() => {
                         {selectedAnswer === currentQuestion.correctAnswer ? (
                           <div className="text-green-600 font-medium">
                             <CheckCircle2 className="h-6 w-6 mx-auto mb-2" />
-                            Correct! +{1000} points
+                            Correct! +{1} point
                           </div>
                         ) : (
                           <div className="text-red-600 font-medium">
