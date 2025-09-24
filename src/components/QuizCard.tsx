@@ -86,12 +86,12 @@ const QuizCard = ({ quiz, onDelete, onCopyLink, onClick }: QuizCardProps) => {
         <div className="flex items-center gap-4 text-sm text-gray-600">
           <div className="flex items-center">
             <FileText className="h-4 w-4 mr-1" />
-            <span>{quiz.questions?.length || 0} question(s)</span>
+            <span>{quiz.questions?.length || 0} {`${quiz.questions.length === 1? 'question' : 'questions'}`}</span>
           </div>
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <Users className="h-4 w-4 mr-1" />
             <span>{quiz.participants} participants</span>
-          </div>
+          </div> */}
         </div>
         {quiz.status === "completed" && quiz.averageScore && (
           <div className="mt-2 text-sm text-gray-600">

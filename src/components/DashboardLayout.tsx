@@ -5,6 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LayoutDashboard, ListChecks, Users, BarChart, Settings, LogOut, Menu, Brain } from "lucide-react"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
 
 interface DashboardLayoutProps {
   children: ReactNode
@@ -13,6 +14,21 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const router = useRouter();
+  const [user, setUser] = useState<any>(null);
+
+  // Get user data from localStorage on mount
+  useEffect(() => {
+    try {
+      const userData = localStorage.getItem("user");
+      if (userData) {
+        setUser(JSON.parse(userData));
+      }
+    } catch (error) {
+      console.error("Error parsing user data:", error);
+      // If user data is corrupted, redirect to login
+      router.push("/login");
+    }
+  }, []);
 
   const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
@@ -24,9 +40,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
    const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     router.push("/login");
   };
 
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar for desktop */}
@@ -59,11 +87,13 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="flex items-center gap-3 mb-4">
             <Avatar>
               <AvatarImage src="/placeholder.svg?height=40&width=40" alt="User" />
-              <AvatarFallback>JD</AvatarFallback>
+              <AvatarFallback>
+                {user ? getInitials(user.name) : 'U'}
+              </AvatarFallback>
             </Avatar>
             <div>
-              <div className="font-medium">Nasser J. Samiru</div>
-              <div className="text-sm text-gray-500">nasserjadagwa@gmail.com</div>
+              <div className="font-medium">{user?.name || 'Loading...'}</div>
+              <div className="text-sm text-gray-500">{user?.email || ''}</div>
             </div>
           </div>
           <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleLogout}>
@@ -117,16 +147,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <div className="flex items-center gap-3 mb-4">
                   <Avatar>
                     <AvatarImage src="/placeholder.svg?height=40&width=40" alt="User" />
-                    <AvatarFallback>JD</AvatarFallback>
+                    <AvatarFallback>
+                      {user ? getInitials(user.name) : 'U'}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-medium">Jane Doe</div>
-                    <div className="text-sm text-gray-500">jane@example.com</div>
+                    <div className="font-medium">{user?.name || 'Loading...'}</div>
+                    <div className="text-sm text-gray-500">{user?.email || ''}</div>
                   </div>
                 </div>
                 <Button
                   variant="outline"
                   className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={handleLogout}
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   Log out

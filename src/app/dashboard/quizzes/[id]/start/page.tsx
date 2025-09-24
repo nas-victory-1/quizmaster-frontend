@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Clock, Users, CheckCircle2, XCircle, Trophy, Square, SkipForward, AlertCircle } from "lucide-react"
 import { useSocket } from '@/hooks/useSocket';
-import { getSessionById } from '@/api/session';
+import { getSessionById, updateParticipantScore } from '@/api/session';
 
 interface Question {
   question: string;
@@ -239,24 +239,22 @@ useEffect(() => {
     }
   };
 
-  const handleNextQuestion = () => {
-    if (!quizData || !isCreator) return;
+ const handleNextQuestion = () => {
+  if (!quizData || !isCreator) return;
 
-    const nextIndex = currentQuestionIndex + 1;
+  const nextIndex = currentQuestionIndex + 1;
 
-    if (nextIndex >= quizData.questions.length) {
-      // Quiz finished
-      setQuizEnded(true);
-      if (socket) {
-        socket.emit('end-quiz', { sessionId });
-      }
-      return;
+  if (nextIndex >= quizData.questions.length) {
+    // Quiz finished - save participant scores first
+    setQuizEnded(true);
+    if (socket) {
+      socket.emit('end-quiz', { sessionId });
     }
-
-    // Move to next question
+    return;
+  }
     setCurrentQuestionIndex(nextIndex);
     startQuestion(nextIndex, quizData.questions[nextIndex]);
-  };
+  }
 
   const handleManualNext = () => {
     if (isCreator) {
@@ -264,14 +262,32 @@ useEffect(() => {
     }
   };
 
-  const handleEndQuiz = () => {
-    if (isCreator) {
-      setQuizEnded(true);
-      if (socket) {
-        socket.emit('end-quiz', { sessionId });
+const handleEndQuiz = async () => {
+  if (isCreator) {
+    setQuizEnded(true);
+    if (socket) {
+      socket.emit('end-quiz', { sessionId });
+    }
+  } else {
+    // Participant - send their final score to backend
+    if (quizData) {
+      const finalScore = answers.filter((answer, index) => 
+        answer === quizData.questions[index]?.correctAnswer
+      ).length;
+      
+      try {
+        await updateParticipantScore(sessionId as string, 
+          localStorage.getItem('participantId') as string, 
+          finalScore
+        );
+      } catch (error) {
+        console.error('Failed to save final score:', error);
       }
     }
-  };
+    
+    setQuizEnded(true);
+  }
+};
 
   // Listen for participant answers (creator only)
   useEffect(() => {
@@ -291,6 +307,28 @@ useEffect(() => {
       socket.off('answer-received', handleAnswerReceived);
     };
   }, [socket, isCreator]);
+
+  useEffect(() => {
+    if (quizEnded && !isCreator && answers.length > 0 && quizData) {
+      const finalScore = answers.filter((answer, index) => 
+        answer === quizData.questions[index]?.correctAnswer
+      ).length;
+      
+      const saveScore = async () => {
+        try {
+          await updateParticipantScore(
+            sessionId as string, 
+            localStorage.getItem('participantId') as string, 
+            finalScore
+          );
+        } catch (error) {
+          console.error('Failed to save final score:', error);
+        }
+      };
+      
+      saveScore();
+    }
+  }, [quizEnded, isCreator, answers, sessionId, quizData]);
 
   if (loading) {
     return (

@@ -44,21 +44,27 @@ export default function LeaderboardPage() {
             totalQuestions: session.questions?.length || 0
           })
 
-          // Create leaderboard from participants
+          // Create leaderboard from participants with real scores (1 point per correct answer)
           const entries = session.participants
-            .map((participant: any, index: number) => ({
-              participantId: participant.id,
-              name: participant.name,
-              totalScore: participant.score || Math.floor(Math.random() * 10000),
-              correctAnswers: Math.floor(Math.random() * (session.questions?.length || 10)),
-              totalQuestions: session.questions?.length || 10,
-              accuracy: 0,
-              rank: 0
-            }))
-            .sort((a: any, b: any) => b.totalScore - a.totalScore)
+            .map((participant: any) => {
+              // Use actual score from participant data (should be number of correct answers)
+              const correctAnswers = participant.score || 0
+              const totalQuestions = session.questions?.length || 0
+              const accuracy = totalQuestions > 0 ? Math.round((correctAnswers / totalQuestions) * 100) : 0
+              
+              return {
+                participantId: participant.id,
+                name: participant.name,
+                totalScore: correctAnswers, // 1 point per correct answer
+                correctAnswers: correctAnswers,
+                totalQuestions: totalQuestions,
+                accuracy: accuracy,
+                rank: 0
+              }
+            })
+            .sort((a: any, b: any) => b.totalScore - a.totalScore) // Sort by score (highest first)
             .map((entry: any, index: number) => ({
               ...entry,
-              accuracy: Math.round((entry.correctAnswers / entry.totalQuestions) * 100),
               rank: index + 1
             }))
 

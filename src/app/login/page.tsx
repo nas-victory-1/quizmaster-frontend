@@ -63,10 +63,13 @@ export default function LoginPage() {
                     try {
                       const { login } = await import("@/api/auth");
                       const res = await login({ email, password });
+                      
+                      // Store both token and user data
                       localStorage.setItem("token", res.data.token);
+                      localStorage.setItem("user", JSON.stringify(res.data.data));
+                      
                       console.log("Login success:", res.data);
                       router.push('/dashboard');
-                      // alert("Login successful!");
                     } catch (err: any) {
                       console.error(err);
                       setError(err.response?.data?.message || "Email or password is incorrect");
