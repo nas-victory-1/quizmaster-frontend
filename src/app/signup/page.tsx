@@ -197,19 +197,19 @@ export default function SignUpPage() {
               </div>
 
               {/* Terms and Privacy */}
-              <div className="flex items-start space-x-2">
+              <div className="flex items-center space-x-2 whitespace-nowrap md:whitespace-normal">
                 <Checkbox id="terms" required />
-                <div className="grid gap-1.5 leading-none">
+                <div className="leading-none">
                   <Label
                     htmlFor="terms"
                     className="text-sm font-normal leading-snug peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                   >
-                    I agree to the{" "}
+                    I agree to the
                     <Link href="/terms" className="text-purple-600 hover:text-purple-700 underline">
                       Terms of Service
-                    </Link>{" "}
-                    and{" "}
-                    <Link href="/privacy" className="text-purple-600 hover:text-purple-700 underline">
+                    </Link>
+                    and
+                    <Link href="/privacy" className="text-purple-600 hover:text-red-700 underline">
                       Privacy Policy
                     </Link>
                   </Label>

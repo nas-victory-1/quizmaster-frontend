@@ -61,7 +61,7 @@ export default function DashboardPage() {
       const sessionResponse = await createQuizSession({
         title: quiz.title,
         questions: quiz.questions,
-        creatorId: 'current-user-id' // TODO: Get from user context
+        creatorId: userData.id // TODO: Get from user context
       });
 
       if (sessionResponse.success) {
@@ -160,7 +160,7 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {quizzes.slice(0, 5).map((quiz) => (
+            {quizzes.slice(0, 3).map((quiz) => (
               <Card key={quiz._id} className="overflow-hidden relative">
                 {creatingSession === quiz._id && (
                   <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">

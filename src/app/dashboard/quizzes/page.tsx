@@ -60,7 +60,7 @@ export default function QuizzesPage() {
       // Create a new session for this quiz
       const sessionResponse = await createQuizSession({
         title: quiz.title,
-        creatorId: 'current-user-id', //todo: Replace with actual user ID when you have auth
+        creatorId: quiz._id, //todo: chesk if this makes sense
         questions: quiz.questions.map((q) => ({
           question: q.text,
           options: q.options.map((opt) => opt.text),

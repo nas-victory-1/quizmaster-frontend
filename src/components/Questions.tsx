@@ -226,7 +226,7 @@ const Questions = ({quizData, setQuizData, setActiveTab}: Props) => {
             </Card>
           ))}
 
-          <div className="flex justify-between">
+          <div className="flex flex-col gap-2 md:flex-row justify-between">
             <Button variant="outline" onClick={() => setActiveTab("details")}>
               Back to Details
             </Button>
