@@ -1,42 +1,36 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  User,
-  Bell,
-  Shield,
-  CreditCard,
-  Palette,
-  Save,
-} from "lucide-react"
-import DashboardLayout from "@/components/DashboardLayout"
-import PrivacyTab from "@/components/PrivacyTab"
-import ProfileTab from "@/components/ProfileTab"
-import NotificationsTab from "@/components/NotificationsTab"
-import AppearanceTab from "@/components/AppearanceTab"
-import AccountTab from "@/components/AccountTab"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { User, Bell, Shield, CreditCard, Palette, Save } from "lucide-react";
+import DashboardLayout from "@/components/DashboardLayout";
+import PrivacyTab from "@/components/PrivacyTab";
+import ProfileTab from "@/components/ProfileTab";
+import NotificationsTab from "@/components/NotificationsTab";
+import AppearanceTab from "@/components/AppearanceTab";
+import AccountTab from "@/components/AccountTab";
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("profile")
-  const [isSaving, setIsSaving] = useState(false)
+  const [activeTab, setActiveTab] = useState("profile");
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async () => {
-    setIsSaving(true)
+    setIsSaving(true);
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsSaving(false)
-    alert("Settings saved successfully!")
-  }
-
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setIsSaving(false);
+    alert("Settings saved successfully!");
+  };
 
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-3xl font-bold">Settings</h1>
-          <p className="text-gray-500 mt-1">Manage your account settings and preferences</p>
+          <p className="text-gray-500 mt-1">
+            Manage your account settings and preferences
+          </p>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -45,7 +39,10 @@ export default function SettingsPage() {
               <User className="h-4 w-4" />
               Profile
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex items-center gap-2">
+            <TabsTrigger
+              value="notifications"
+              className="flex items-center gap-2"
+            >
               <Bell className="h-4 w-4" />
               Notifications
             </TabsTrigger>
@@ -63,21 +60,20 @@ export default function SettingsPage() {
             </TabsTrigger>
           </TabsList>
 
-          <ProfileTab />
-
-          <NotificationsTab />
-
-          <PrivacyTab />
-
-          <AppearanceTab />
-
-          <AccountTab />
-
+          {activeTab === "profile" && <ProfileTab />}
+          {activeTab === "notifications" && <NotificationsTab />}
+          {activeTab === "privacy" && <PrivacyTab />}
+          {activeTab === "appearance" && <AppearanceTab />}
+          {activeTab === "account" && <AccountTab />}
         </Tabs>
 
         {/* Save Button */}
         <div className="flex justify-end mt-8">
-          <Button onClick={handleSave} disabled={isSaving} className="bg-purple-600 hover:bg-purple-700">
+          <Button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
             {isSaving ? (
               <>
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -93,5 +89,5 @@ export default function SettingsPage() {
         </div>
       </div>
     </DashboardLayout>
-  )
+  );
 }
