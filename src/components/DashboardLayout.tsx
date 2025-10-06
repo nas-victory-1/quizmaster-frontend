@@ -1,18 +1,26 @@
-import Link from "next/link"
-import type { ReactNode } from "react"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { LayoutDashboard, ListChecks, Users, BarChart, Settings, LogOut, Menu, Brain } from "lucide-react"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import { useRouter } from "next/navigation"
-import { useState, useEffect } from "react"
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  LayoutDashboard,
+  ListChecks,
+  Users,
+  BarChart,
+  Settings,
+  LogOut,
+  Menu,
+  Brain,
+} from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 
 interface DashboardLayoutProps {
-  children: ReactNode
+  children: ReactNode;
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
 
@@ -33,28 +41,25 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },
     { icon: ListChecks, label: "Quizzes", href: "/dashboard/quizzes" },
-    { icon: Users, label: "Participants", href: "/dashboard/participants" },
     { icon: BarChart, label: "Analytics", href: "/dashboard/analytics" },
     { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-  ]
+  ];
 
-   const handleLogout = () => {
+  const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     router.push("/login");
   };
 
-
   const getInitials = (name: string) => {
     return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
       .toUpperCase()
       .slice(0, 2);
   };
 
-  
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar for desktop */}
@@ -72,7 +77,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             {navItems.map((item) => (
               <li key={item.label}>
                 <Link href={item.href}>
-                  <Button variant="ghost" className="w-full justify-start" asChild>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start"
+                    asChild
+                  >
                     <div className="flex items-center gap-3">
                       <item.icon className="h-5 w-5" />
                       {item.label}
@@ -86,17 +95,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <div className="p-4 border-t">
           <div className="flex items-center gap-3 mb-4">
             <Avatar>
-              <AvatarImage src="/placeholder.svg?height=40&width=40" alt="User" />
+              <AvatarImage
+                src="/placeholder.svg?height=40&width=40"
+                alt="User"
+              />
               <AvatarFallback>
-                {user ? getInitials(user.name) : 'U'}
+                {user ? getInitials(user.name) : "U"}
               </AvatarFallback>
             </Avatar>
             <div>
-              <div className="font-medium">{user?.name || 'Loading...'}</div>
-              <div className="text-sm text-gray-500">{user?.email || ''}</div>
+              <div className="font-medium">{user?.name || "Loading..."}</div>
+              <div className="text-sm text-gray-500">{user?.email || ""}</div>
             </div>
           </div>
-          <Button variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50" onClick={handleLogout}>
+          <Button
+            variant="outline"
+            className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+            onClick={handleLogout}
+          >
             <LogOut className="h-4 w-4 mr-2" />
             Log out
           </Button>
@@ -132,7 +148,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   {navItems.map((item) => (
                     <li key={item.label}>
                       <Link href={item.href}>
-                        <Button variant="ghost" className="w-full justify-start" asChild>
+                        <Button
+                          variant="ghost"
+                          className="w-full justify-start"
+                          asChild
+                        >
                           <div className="flex items-center gap-3">
                             <item.icon className="h-5 w-5" />
                             {item.label}
@@ -146,14 +166,21 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="p-4 border-t mt-auto">
                 <div className="flex items-center gap-3 mb-4">
                   <Avatar>
-                    <AvatarImage src="/placeholder.svg?height=40&width=40" alt="User" />
+                    <AvatarImage
+                      src="/placeholder.svg?height=40&width=40"
+                      alt="User"
+                    />
                     <AvatarFallback>
-                      {user ? getInitials(user.name) : 'U'}
+                      {user ? getInitials(user.name) : "U"}
                     </AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="font-medium">{user?.name || 'Loading...'}</div>
-                    <div className="text-sm text-gray-500">{user?.email || ''}</div>
+                    <div className="font-medium">
+                      {user?.name || "Loading..."}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      {user?.email || ""}
+                    </div>
                   </div>
                 </div>
                 <Button
@@ -173,5 +200,5 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Main content */}
       <div className="flex-1 md:p-8 p-4 pt-20 md:pt-8">{children}</div>
     </div>
-  )
+  );
 }

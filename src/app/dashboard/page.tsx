@@ -1,13 +1,29 @@
-'use client'
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { PlusCircle, Clock, Users, BarChart, Edit, Trash2, ExternalLink, PlayCircle } from "lucide-react"
-import DashboardLayout from "@/components/DashboardLayout"
-import { useEffect, useState } from "react"
-import { useRouter } from "next/navigation"
-import { getAllQuizzes } from "@/api/quiz"
-import { createQuizSession } from "@/api/session"
+"use client";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  PlusCircle,
+  Clock,
+  Users,
+  BarChart,
+  Edit,
+  Trash2,
+  ExternalLink,
+  PlayCircle,
+} from "lucide-react";
+import DashboardLayout from "@/components/DashboardLayout";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { getAllQuizzes } from "@/api/quiz";
+import { createQuizSession } from "@/api/session";
 
 interface Quiz {
   _id: string;
@@ -57,26 +73,29 @@ export default function DashboardPage() {
   const startLiveSession = async (quiz: Quiz) => {
     try {
       setCreatingSession(quiz._id);
-      
+
+      // Get user data from localStorage (added this line)
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
+
       const sessionResponse = await createQuizSession({
         title: quiz.title,
         questions: quiz.questions,
-        creatorId: userData.id // TODO: Get from user context
+        creatorId: userData.id || "temp-user", // Now userData is defined!
       });
 
       if (sessionResponse.success) {
-        localStorage.setItem('isCreator', 'true');
-        localStorage.setItem('quizTitle', quiz.title);
-        localStorage.setItem('quizCode', sessionResponse.data.code);
-        localStorage.setItem('sessionId', sessionResponse.data.sessionId);
-        
+        localStorage.setItem("isCreator", "true");
+        localStorage.setItem("quizTitle", quiz.title);
+        localStorage.setItem("quizCode", sessionResponse.data.code);
+        localStorage.setItem("sessionId", sessionResponse.data.sessionId);
+
         router.push(`/quiz/${sessionResponse.data.sessionId}/waiting`);
       } else {
-        alert('Failed to create quiz session. Please try again.');
+        alert("Failed to create quiz session. Please try again.");
       }
     } catch (error) {
-      console.error('Error creating session:', error);
-      alert('Failed to create quiz session. Please try again.');
+      console.error("Error creating session:", error);
+      alert("Failed to create quiz session. Please try again.");
     } finally {
       setCreatingSession(null);
     }
@@ -84,12 +103,12 @@ export default function DashboardPage() {
 
   // Delete quiz
   const deleteQuiz = async (quizId: string) => {
-    if (confirm('Are you sure you want to delete this quiz?')) {
+    if (confirm("Are you sure you want to delete this quiz?")) {
       try {
         // TODO: Implement delete API call
-        setQuizzes(prev => prev.filter(quiz => quiz._id !== quizId));
+        setQuizzes((prev) => prev.filter((quiz) => quiz._id !== quizId));
       } catch (error) {
-        console.error('Error deleting quiz:', error);
+        console.error("Error deleting quiz:", error);
       }
     }
   };
@@ -98,15 +117,22 @@ export default function DashboardPage() {
     return null;
   }
 
-  const totalQuestions = quizzes.reduce((sum, quiz) => sum + quiz.questions.length, 0);
-  const completedQuizzes = quizzes.filter(quiz => quiz.status === 'published').length;
+  const totalQuestions = quizzes.reduce(
+    (sum, quiz) => sum + quiz.questions.length,
+    0
+  );
+  const completedQuizzes = quizzes.filter(
+    (quiz) => quiz.status === "published"
+  ).length;
 
   return (
     <DashboardLayout>
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold">Dashboard</h1>
-          <p className="text-gray-500 mt-1">Manage your quizzes and create live sessions</p>
+          <p className="text-gray-500 mt-1">
+            Manage your quizzes and create live sessions
+          </p>
         </div>
         <Link href="/dashboard/create-quiz">
           <Button className="bg-purple-600 hover:bg-purple-700">
@@ -119,7 +145,9 @@ export default function DashboardPage() {
       <div className="grid gap-6 md:grid-cols-3 mb-8">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Total Quizzes</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">
+              Total Quizzes
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{quizzes.length}</div>
@@ -127,7 +155,9 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Total Questions</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">
+              Total Questions
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{totalQuestions}</div>
@@ -135,7 +165,9 @@ export default function DashboardPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-gray-500">Published Quizzes</CardTitle>
+            <CardTitle className="text-sm font-medium text-gray-500">
+              Published Quizzes
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-3xl font-bold">{completedQuizzes}</div>
@@ -166,11 +198,13 @@ export default function DashboardPage() {
                   <div className="absolute inset-0 bg-white/80 flex items-center justify-center z-10">
                     <div className="text-center">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600 mx-auto mb-2" />
-                      <p className="text-sm text-gray-600">Creating session...</p>
+                      <p className="text-sm text-gray-600">
+                        Creating session...
+                      </p>
                     </div>
                   </div>
                 )}
-                
+
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start">
                     <CardTitle className="text-lg">{quiz.title}</CardTitle>
@@ -188,7 +222,7 @@ export default function DashboardPage() {
                     {quiz.description}
                   </CardDescription>
                 </CardHeader>
-                
+
                 <CardContent className="pb-2">
                   <div className="flex items-center gap-4 text-sm text-gray-600">
                     <div className="flex items-center">
@@ -204,7 +238,7 @@ export default function DashboardPage() {
                     Created {new Date(quiz.createdAt).toLocaleDateString()}
                   </div>
                 </CardContent>
-                
+
                 <CardFooter className="flex justify-between pt-2">
                   <div className="flex gap-2">
                     <Link href={`/dashboard/create-quiz?edit=${quiz._id}`}>
@@ -212,10 +246,10 @@ export default function DashboardPage() {
                         <Edit className="h-4 w-4 mr-1" /> Edit
                       </Button>
                     </Link>
-                    
+
                     {quiz.status === "published" && (
-                      <Button 
-                        variant="outline" 
+                      <Button
+                        variant="outline"
                         size="sm"
                         onClick={() => startLiveSession(quiz)}
                         disabled={creatingSession === quiz._id}
@@ -224,10 +258,10 @@ export default function DashboardPage() {
                       </Button>
                     )}
                   </div>
-                  
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     onClick={() => deleteQuiz(quiz._id)}
                   >
@@ -247,14 +281,16 @@ export default function DashboardPage() {
                 Build interactive quizzes for live sessions
               </p>
               <Link href="/dashboard/create-quiz">
-                <Button className="bg-purple-600 hover:bg-purple-700">Create Quiz</Button>
+                <Button className="bg-purple-600 hover:bg-purple-700">
+                  Create Quiz
+                </Button>
               </Link>
             </Card>
           </div>
         )}
 
-        {!loading && quizzes.length === 0 && (
-          <Card className="border-dashed flex flex-col items-center justify-center p-12">
+        {/* {!loading && quizzes.length === 0 && (
+          <Card className="border-dashed flex flex-col items-center justify-center p-12 mt-10">
             <div className="rounded-full bg-purple-100 p-4 mb-4">
               <PlusCircle className="h-8 w-8 text-purple-600" />
             </div>
@@ -268,8 +304,8 @@ export default function DashboardPage() {
               </Button>
             </Link>
           </Card>
-        )}
+        )} */}
       </div>
     </DashboardLayout>
-  )
+  );
 }
