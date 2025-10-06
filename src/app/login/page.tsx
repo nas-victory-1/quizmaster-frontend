@@ -63,10 +63,13 @@ export default function LoginPage() {
                     try {
                       const { login } = await import("@/api/auth");
                       const res = await login({ email, password });
+                      
+                      // Store both token and user data
                       localStorage.setItem("token", res.data.token);
+                      localStorage.setItem("user", JSON.stringify(res.data.data));
+                      
                       console.log("Login success:", res.data);
                       router.push('/dashboard');
-                      // alert("Login successful!");
                     } catch (err: any) {
                       console.error(err);
                       setError(err.response?.data?.message || "Email or password is incorrect");
@@ -196,12 +199,12 @@ export default function LoginPage() {
                 </div>
 
                 {/* Demo Account */}
-                <Alert>
+                {/* <Alert>
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
                     Want to try it out? Use <strong>demo@quizmaster.com</strong> with password <strong>demo123</strong>
                   </AlertDescription>
-                </Alert>
+                </Alert> */}
               </>
             ) : (
               <>
@@ -237,7 +240,7 @@ export default function LoginPage() {
       </main>
 
       <footer className="border-t bg-white py-6">
-        <div className="container text-center text-sm text-gray-500">© {} QuizMaster. All rights reserved.</div>
+        <div className="container text-center text-sm text-gray-500">© {new Date().getFullYear()} QuizMaster. All rights reserved.</div>
       </footer>
     </div>
   )

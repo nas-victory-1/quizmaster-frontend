@@ -68,12 +68,12 @@ const QuizCard = ({ quiz, onDelete, onCopyLink, onClick }: QuizCardProps) => {
           alt={quiz.title}
           className="w-full h-full object-cover"
         />
-        <div className="absolute top-2 right-2">
+        {/* <div className="absolute top-2 right-2">
           <Badge className={`${getStatusColor(quiz.status)} flex items-center gap-1`}>
             {getStatusIcon(quiz.status)}
             {quiz.status?.charAt(0).toUpperCase() + quiz.status?.slice(1) || "Unknown"}
           </Badge>
-        </div>
+        </div> */}
       </div>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
@@ -86,12 +86,12 @@ const QuizCard = ({ quiz, onDelete, onCopyLink, onClick }: QuizCardProps) => {
         <div className="flex items-center gap-4 text-sm text-gray-600">
           <div className="flex items-center">
             <FileText className="h-4 w-4 mr-1" />
-            <span>{quiz.questions?.length || 0} question(s)</span>
+            <span>{quiz.questions?.length || 0} {`${quiz.questions.length === 1? 'question' : 'questions'}`}</span>
           </div>
-          <div className="flex items-center">
+          {/* <div className="flex items-center">
             <Users className="h-4 w-4 mr-1" />
             <span>{quiz.participants} participants</span>
-          </div>
+          </div> */}
         </div>
         {quiz.status === "completed" && quiz.averageScore && (
           <div className="mt-2 text-sm text-gray-600">

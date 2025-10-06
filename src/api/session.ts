@@ -32,3 +32,11 @@ export const startQuizSession = async (sessionId: string) => {
   const res = await api.post(`/session/start/${sessionId}`);
   return res.data;
 };
+
+export const updateParticipantScore = async (sessionId: string, participantId: string, finalScore: number) => {
+  const res = await api.post(`/session/${sessionId}/update-score`, {
+    participantId,
+    finalScore
+  });
+  return res.data;
+};

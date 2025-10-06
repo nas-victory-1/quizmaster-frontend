@@ -1,30 +1,30 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import Link from "next/link"
-import DashboardLayout from "@/components/DashboardLayout"
-import { Quiz } from "@/types/types"
-import { getAllQuizzes } from "@/api/quiz"
-import { createQuizSession } from "@/api/session"
-import { Button } from "@/components/ui/button"
-import { PlusCircle } from "lucide-react"
-import QuizCard from "@/components/QuizCard"
-import QuizListItem from "@/components/QuizListItem"
-import QuizFilters from "@/components/QuizFilters"
-import QuizEmptyState from "@/components/QuizEmptyState"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import DashboardLayout from "@/components/DashboardLayout";
+import { Quiz } from "@/types/types";
+import { getAllQuizzes } from "@/api/quiz";
+import { createQuizSession } from "@/api/session";
+import { Button } from "@/components/ui/button";
+import { PlusCircle } from "lucide-react";
+import QuizCard from "@/components/QuizCard";
+import QuizListItem from "@/components/QuizListItem";
+import QuizFilters from "@/components/QuizFilters";
+import QuizEmptyState from "@/components/QuizEmptyState";
+import { useRouter } from "next/navigation";
 
 export default function QuizzesPage() {
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid")
-  const [searchQuery, setSearchQuery] = useState("")
-  const [statusFilter, setStatusFilter] = useState("all")
-  const [categoryFilter, setCategoryFilter] = useState("all")
-  const [sortBy, setSortBy] = useState<string>("recent")
-  const [allQuizzes, setAllQuizzes] = useState<Quiz[]>([])
-  const [loading, setLoading] = useState(true)
-  const [creatingSession, setCreatingSession] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [sortBy, setSortBy] = useState<string>("recent");
+  const [allQuizzes, setAllQuizzes] = useState<Quiz[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [creatingSession, setCreatingSession] = useState<string | null>(null);
 
-  const router = useRouter()  
+  const router = useRouter();
 
   useEffect(() => {
     const fetchQuizzes = async () => {
@@ -45,22 +45,16 @@ export default function QuizzesPage() {
   const goToWaitingRoom = async (quizId: string) => {
     try {
       setCreatingSession(quizId);
-      
-      // Find the quiz data
-      const quiz = allQuizzes.find(q => q._id === quizId);
-      if (!quiz) {
-        console.error('Quiz not found');
-        return;
-      }
 
-      console.log('Creating session for quiz:', quiz.title);
+      const quiz = allQuizzes.find((q) => q._id === quizId);
+      if (!quiz) return;
 
-      
+      // Get user from localStorage
+      const userData = JSON.parse(localStorage.getItem("user") || "{}");
 
-      // Create a new session for this quiz
       const sessionResponse = await createQuizSession({
         title: quiz.title,
-        creatorId: 'current-user-id', //todo: Replace with actual user ID when you have auth
+        creatorId: userData.id || "temp-user", // Fallback for testing
         questions: quiz.questions.map((q) => ({
           question: q.text,
           options: q.options.map((opt) => opt.text),
@@ -68,46 +62,33 @@ export default function QuizzesPage() {
         })),
       });
 
-      console.log('Session created:', sessionResponse);
-
       if (sessionResponse.success) {
-        // Store session data in localStorage
-        localStorage.setItem('isCreator', 'true');
-        localStorage.setItem('quizTitle', quiz.title);
-        localStorage.setItem('quizCode', sessionResponse.data.code);
-        localStorage.setItem('sessionId', sessionResponse.data.sessionId);
-        
-        console.log('Stored in localStorage:');
-        console.log('- isCreator: true');
-        console.log('- quizTitle:', quiz.title);
-        console.log('- quizCode:', sessionResponse.data.code);
-        console.log('- sessionId:', sessionResponse.data.sessionId);
+        localStorage.setItem("isCreator", "true");
+        localStorage.setItem("quizTitle", quiz.title);
+        localStorage.setItem("quizCode", sessionResponse.data.code);
+        localStorage.setItem("sessionId", sessionResponse.data.sessionId);
 
-        // Navigate to session waiting room
         router.push(`quizzes/${sessionResponse.data.sessionId}/waiting-room`);
-      } else {
-        console.error('Failed to create session:', sessionResponse);
-        alert('Failed to create quiz session. Please try again.');
       }
     } catch (error) {
-      console.error('Error creating session:', error);
-      alert('Failed to create quiz session. Please try again.');
+      console.error("Error creating session:", error);
+      alert("Failed to create quiz session. Please try again.");
     } finally {
       setCreatingSession(null);
     }
   };
 
-  if(loading){
+  if (loading) {
     return (
-          <DashboardLayout>
-            <div className="flex items-center justify-center min-h-[400px]">
-              <div className="text-center">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4" />
-                <p className="text-gray-500">Loading quizzes...</p>
-              </div>
-            </div>
-          </DashboardLayout>
-        );
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4" />
+            <p className="text-gray-500">Loading quizzes...</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
   }
 
   // Filter and sort quizzes
@@ -115,44 +96,56 @@ export default function QuizzesPage() {
     .filter((quiz) => {
       const matchesSearch =
         quiz.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        quiz.description.toLowerCase().includes(searchQuery.toLowerCase())
-      const matchesStatus = statusFilter === "all" || quiz.status === statusFilter
-      const matchesCategory = categoryFilter === "all" || quiz.category === categoryFilter
-      return matchesSearch && matchesStatus && matchesCategory
+        quiz.description.toLowerCase().includes(searchQuery.toLowerCase());
+      const matchesStatus =
+        statusFilter === "all" || quiz.status === statusFilter;
+      const matchesCategory =
+        categoryFilter === "all" || quiz.category === categoryFilter;
+      return matchesSearch && matchesStatus && matchesCategory;
     })
     .sort((a, b) => {
       switch (sortBy) {
         case "recent":
-          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          return (
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
         case "oldest":
-          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          return (
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
         case "title":
-          return a.title.localeCompare(b.title)
+          return a.title.localeCompare(b.title);
         case "participants":
-          return b.participants - a.participants
+          return b.participants - a.participants;
         default:
-          return 0
+          return 0;
       }
-    })
+    });
 
   const copyQuizLink = (quizId: string) => {
-    const link = `${window.location.origin}/quiz/${quizId}`
-    navigator.clipboard.writeText(link)
-    alert("Quiz link copied to clipboard!")
-  }
+    const link = `${window.location.origin}/quiz/${quizId}`;
+    navigator.clipboard.writeText(link);
+    alert("Quiz link copied to clipboard!");
+  };
 
   const deleteQuiz = (quizId: string) => {
-    setAllQuizzes(prevQuizzes => prevQuizzes.filter(quiz => quiz._id !== quizId));
-  }
+    setAllQuizzes((prevQuizzes) =>
+      prevQuizzes.filter((quiz) => quiz._id !== quizId)
+    );
+  };
 
-  const hasFilters = Boolean(searchQuery || statusFilter !== "all" || categoryFilter !== "all")
+  const hasFilters = Boolean(
+    searchQuery || statusFilter !== "all" || categoryFilter !== "all"
+  );
 
   return (
     <DashboardLayout>
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold">My Quizzes</h1>
-          <p className="text-gray-500 mt-1">Manage and track all your quizzes</p>
+          <p className="text-gray-500 mt-1">
+            Manage and track all your quizzes
+          </p>
         </div>
         <Link href="/dashboard/create-quiz">
           <Button className="bg-purple-600 hover:bg-purple-700">
@@ -188,17 +181,19 @@ export default function QuizzesPage() {
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredQuizzes.map((quiz) => (
                 <div key={quiz._id} className="relative">
-                  <QuizCard 
-                    quiz={quiz} 
-                    onDelete={deleteQuiz} 
-                    onCopyLink={copyQuizLink} 
+                  <QuizCard
+                    quiz={quiz}
+                    onDelete={deleteQuiz}
+                    onCopyLink={copyQuizLink}
                     onClick={goToWaitingRoom}
                   />
                   {creatingSession === quiz._id && (
                     <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
                       <div className="text-center">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600 mx-auto mb-2" />
-                        <p className="text-sm text-gray-600">Creating session...</p>
+                        <p className="text-sm text-gray-600">
+                          Creating session...
+                        </p>
                       </div>
                     </div>
                   )}
@@ -209,17 +204,19 @@ export default function QuizzesPage() {
             <div className="space-y-4">
               {filteredQuizzes.map((quiz) => (
                 <div key={quiz._id} className="relative">
-                  <QuizListItem 
-                    quiz={quiz} 
-                    onDelete={deleteQuiz} 
-                    onCopyLink={copyQuizLink} 
+                  <QuizListItem
+                    quiz={quiz}
+                    onDelete={deleteQuiz}
+                    onCopyLink={copyQuizLink}
                     onClick={goToWaitingRoom}
                   />
                   {creatingSession === quiz._id && (
                     <div className="absolute inset-0 bg-white/80 flex items-center justify-center rounded-lg">
                       <div className="text-center">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600 mx-auto mb-2" />
-                        <p className="text-sm text-gray-600">Creating session...</p>
+                        <p className="text-sm text-gray-600">
+                          Creating session...
+                        </p>
                       </div>
                     </div>
                   )}
@@ -230,5 +227,5 @@ export default function QuizzesPage() {
         </div>
       )}
     </DashboardLayout>
-  )
+  );
 }

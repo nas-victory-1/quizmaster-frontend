@@ -72,10 +72,10 @@ const QuizListItem = ({ quiz, onDelete, onCopyLink, onClick }: QuizListItemProps
                     <FileText className="h-3 w-3 mr-1" />
                     {quiz.questions?.length || 0} question(s)
                   </span>
-                  <span className="flex items-center">
+                  {/* <span className="flex items-center">
                     <Users className="h-3 w-3 mr-1" />
                     {quiz.participants} participants
-                  </span>
+                  </span> */}
                   <span className="flex items-center">
                     <Calendar className="h-3 w-3 mr-1" />
                     {formatDate(quiz.createdAt)}
