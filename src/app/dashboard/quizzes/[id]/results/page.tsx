@@ -1,15 +1,11 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useParams, useRouter } from "next/navigation"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Progress } from "@/components/ui/progress"
-import { Separator } from "@/components/ui/separator"
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Trophy,
   Medal,
@@ -21,223 +17,262 @@ import {
   Share2,
   CheckCircle2,
   XCircle,
-  Timer,
-  BarChart3,
-} from "lucide-react"
-import DashboardLayout from "@/components/DashboardLayout"
-import { getSessionById } from "@/api/session"
+} from "lucide-react";
+import DashboardLayout from "@/components/DashboardLayout";
+import { getSessionById } from "@/api/session";
 
 interface QuizResult {
-  participantId: string
-  name: string
-  totalScore: number
-  correctAnswers: number
-  totalQuestions: number
-  accuracy: number
-  averageTimePerQuestion: number
-  completionTime: string
+  participantId: string;
+  name: string;
+  totalScore: number;
+  correctAnswers: number;
+  totalQuestions: number;
+  accuracy: number;
+  averageTimePerQuestion: number;
+  completionTime: string;
   answers: {
-    questionIndex: number
-    question: string
-    selectedAnswer: number
-    correctAnswer: number
-    isCorrect: boolean
-    timeSpent: number
-    pointsEarned: number
-  }[]
+    questionIndex: number;
+    question: string;
+    selectedAnswer: number;
+    correctAnswer: number;
+    isCorrect: boolean;
+    timeSpent: number;
+    pointsEarned: number;
+  }[];
 }
 
 interface QuizSession {
-  _id: string
-  title: string
-  code: string
+  _id: string;
+  title: string;
+  code: string;
   questions: {
-    question: string
-    options: string[]
-    correctAnswer: number
-    timeLimit?: number
-  }[]
+    question: string;
+    options: string[];
+    correctAnswer: number;
+    timeLimit?: number;
+  }[];
   participants: {
-    id: string
-    name: string
-    joinedAt: Date
-    score: number
-  }[]
-  status: 'waiting' | 'active' | 'finished'
-  createdAt: Date
+    id: string;
+    name: string;
+    joinedAt: Date;
+    score: number;
+  }[];
+  status: "waiting" | "active" | "finished";
+  createdAt: Date;
 }
 
 interface QuizAnalytics {
-  totalParticipants: number
-  averageScore: number
-  averageAccuracy: number
-  averageCompletionTime: number
-  completionRate: number
+  totalParticipants: number;
+  averageScore: number;
+  averageAccuracy: number;
+  averageCompletionTime: number;
+  completionRate: number;
   questionAnalytics: {
-    questionIndex: number
-    question: string
-    correctAnswers: number
-    totalAnswers: number
-    accuracy: number
+    questionIndex: number;
+    question: string;
+    correctAnswers: number;
+    totalAnswers: number;
+    accuracy: number;
     options: {
-      text: string
-      count: number
-      percentage: number
-    }[]
-  }[]
+      text: string;
+      count: number;
+      percentage: number;
+    }[];
+  }[];
 }
 
 export default function QuizResultsPage() {
-  const params = useParams()
-  const router = useRouter()
-  const sessionId = params.id as string
-  const [selectedTab, setSelectedTab] = useState("leaderboard")
-  const [loading, setLoading] = useState(true)
-  const [session, setSession] = useState<QuizSession | null>(null)
-  const [results, setResults] = useState<QuizResult[]>([])
-  const [analytics, setAnalytics] = useState<QuizAnalytics | null>(null)
+  const params = useParams();
+  const router = useRouter();
+  const sessionId = params.id as string;
+  const [selectedTab, setSelectedTab] = useState("leaderboard");
+  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<QuizSession | null>(null);
+  const [results, setResults] = useState<QuizResult[]>([]);
+  const [analytics, setAnalytics] = useState<QuizAnalytics | null>(null);
 
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        setLoading(true)
-        
+        setLoading(true);
+
         // Fetch session data
-        const response = await getSessionById(sessionId, true) // true for creator view
-        
+        const response = await getSessionById(sessionId, true); // true for creator view
+
         if (response.success) {
-          const sessionData = response.data as QuizSession
-          setSession(sessionData)
-          
+          const sessionData = response.data as QuizSession;
+          setSession(sessionData);
+
           // Process results from participants
-          const processedResults = sessionData.participants.map((participant, index) => {
-            // Calculate accuracy and other metrics
-            // Note: You'll need to store actual answer data in your session model
-            // For now, we'll use mock calculations
-            const correctAnswers = Math.floor(Math.random() * sessionData.questions.length)
-            const accuracy = (correctAnswers / sessionData.questions.length) * 100
-            
-            return {
-              participantId: participant.id,
-              name: participant.name,
-              totalScore: participant.score || Math.floor(Math.random() * 1),
-              correctAnswers,
-              totalQuestions: sessionData.questions.length,
-              accuracy,
-              averageTimePerQuestion: 15 + Math.random() * 10,
-              completionTime: new Date().toISOString(),
-              answers: [] // You'll need to implement answer tracking
-            } as QuizResult
-          }).sort((a, b) => b.totalScore - a.totalScore) // Sort by score descending
-          
-          setResults(processedResults)
-          
+          const processedResults = sessionData.participants
+            .map((participant, index) => {
+              // Calculate accuracy and other metrics
+              // Note: You'll need to store actual answer data in your session model
+              // For now, we'll use mock calculations
+              const correctAnswers = Math.floor(
+                Math.random() * sessionData.questions.length
+              );
+              const accuracy =
+                (correctAnswers / sessionData.questions.length) * 100;
+
+              return {
+                participantId: participant.id,
+                name: participant.name,
+                totalScore: participant.score || Math.floor(Math.random() * 1),
+                correctAnswers,
+                totalQuestions: sessionData.questions.length,
+                accuracy,
+                averageTimePerQuestion: 15 + Math.random() * 10,
+                completionTime: new Date().toISOString(),
+                answers: [], // You'll need to implement answer tracking
+              } as QuizResult;
+            })
+            .sort((a, b) => b.totalScore - a.totalScore); // Sort by score descending
+
+          setResults(processedResults);
+
           // Calculate analytics
-          const totalParticipants = processedResults.length
-          const averageScore = processedResults.reduce((sum, r) => sum + r.totalScore, 0) / totalParticipants || 0
-          const averageAccuracy = processedResults.reduce((sum, r) => sum + r.accuracy, 0) / totalParticipants || 0
-          const averageCompletionTime = processedResults.reduce((sum, r) => sum + r.averageTimePerQuestion, 0) / totalParticipants || 0
-          
+          const totalParticipants = processedResults.length;
+          const averageScore =
+            processedResults.reduce((sum, r) => sum + r.totalScore, 0) /
+              totalParticipants || 0;
+          const averageAccuracy =
+            processedResults.reduce((sum, r) => sum + r.accuracy, 0) /
+              totalParticipants || 0;
+          const averageCompletionTime =
+            processedResults.reduce(
+              (sum, r) => sum + r.averageTimePerQuestion,
+              0
+            ) / totalParticipants || 0;
+
           // Generate question analytics
-          const questionAnalytics = sessionData.questions.map((question, index) => {
-            // Mock analytics - you'll need to implement real answer tracking
-            const correctAnswers = Math.floor(totalParticipants * (0.5 + Math.random() * 0.5))
-            const accuracy = totalParticipants > 0 ? (correctAnswers / totalParticipants) * 100 : 0
-            
-            return {
-              questionIndex: index,
-              question: question.question,
-              correctAnswers,
-              totalAnswers: totalParticipants,
-              accuracy,
-              options: question.options.map((option, optIndex) => {
-                const isCorrect = optIndex === question.correctAnswer
-                const count = isCorrect ? correctAnswers : Math.floor(Math.random() * (totalParticipants - correctAnswers))
-                return {
-                  text: option,
-                  count,
-                  percentage: totalParticipants > 0 ? (count / totalParticipants) * 100 : 0
-                }
-              })
+          const questionAnalytics = sessionData.questions.map(
+            (question, index) => {
+              // Mock analytics - you'll need to implement real answer tracking
+              const correctAnswers = Math.floor(
+                totalParticipants * (0.5 + Math.random() * 0.5)
+              );
+              const accuracy =
+                totalParticipants > 0
+                  ? (correctAnswers / totalParticipants) * 100
+                  : 0;
+
+              return {
+                questionIndex: index,
+                question: question.question,
+                correctAnswers,
+                totalAnswers: totalParticipants,
+                accuracy,
+                options: question.options.map((option, optIndex) => {
+                  const isCorrect = optIndex === question.correctAnswer;
+                  const count = isCorrect
+                    ? correctAnswers
+                    : Math.floor(
+                        Math.random() * (totalParticipants - correctAnswers)
+                      );
+                  return {
+                    text: option,
+                    count,
+                    percentage:
+                      totalParticipants > 0
+                        ? (count / totalParticipants) * 100
+                        : 0,
+                  };
+                }),
+              };
             }
-          })
-          
+          );
+
           setAnalytics({
             totalParticipants,
             averageScore,
             averageAccuracy,
             averageCompletionTime,
             completionRate: 100, // All participants who joined completed
-            questionAnalytics
-          })
+            questionAnalytics,
+          });
         } else {
-          console.error('Failed to fetch session results')
-          router.push('/dashboard/quizzes')
+          console.error("Failed to fetch session results");
+          router.push("/dashboard/quizzes");
         }
       } catch (error) {
-        console.error('Error fetching results:', error)
-        router.push('/dashboard/quizzes')
+        console.error("Error fetching results:", error);
+        router.push("/dashboard/quizzes");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
     if (sessionId) {
-      fetchResults()
+      fetchResults();
     }
-  }, [sessionId, router])
+  }, [sessionId, router]);
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1:
-        return <Trophy className="h-6 w-6 text-yellow-500" />
+        return <Trophy className="h-6 w-6 text-yellow-500" />;
       case 2:
-        return <Medal className="h-6 w-6 text-gray-400" />
+        return <Medal className="h-6 w-6 text-gray-400" />;
       case 3:
-        return <Award className="h-6 w-6 text-amber-600" />
+        return <Award className="h-6 w-6 text-amber-600" />;
       default:
-        return <div className="h-6 w-6 flex items-center justify-center text-sm font-bold text-gray-500">#{rank}</div>
+        return (
+          <div className="h-6 w-6 flex items-center justify-center text-sm font-bold text-gray-500">
+            #{rank}
+          </div>
+        );
     }
-  }
+  };
 
   const getAccuracyColor = (accuracy: number) => {
-    if (accuracy >= 80) return "text-green-600"
-    if (accuracy >= 60) return "text-yellow-600"
-    return "text-red-600"
-  }
+    if (accuracy >= 80) return "text-green-600";
+    if (accuracy >= 60) return "text-yellow-600";
+    return "text-red-600";
+  };
 
   const exportResults = () => {
-    if (!results.length) return
-    
+    if (!results.length) return;
+
     // Create CSV content
-    const headers = ['Rank', 'Name', 'Score', 'Correct Answers', 'Total Questions', 'Accuracy', 'Avg Time per Question']
+    const headers = [
+      "Rank",
+      "Name",
+      "Score",
+      "Correct Answers",
+      "Total Questions",
+      "Accuracy",
+      "Avg Time per Question",
+    ];
     const csvContent = [
-      headers.join(','),
-      ...results.map((result, index) => [
-        index + 1,
-        result.name,
-        result.totalScore,
-        result.correctAnswers,
-        result.totalQuestions,
-        `${result.accuracy}%`,
-        `${result.averageTimePerQuestion.toFixed(1)}s`
-      ].join(','))
-    ].join('\n')
+      headers.join(","),
+      ...results.map((result, index) =>
+        [
+          index + 1,
+          result.name,
+          result.totalScore,
+          result.correctAnswers,
+          result.totalQuestions,
+          `${result.accuracy}%`,
+          `${result.averageTimePerQuestion.toFixed(1)}s`,
+        ].join(",")
+      ),
+    ].join("\n");
 
     // Download CSV
-    const blob = new Blob([csvContent], { type: 'text/csv' })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `${session?.title || 'quiz'}_results.csv`
-    a.click()
-    window.URL.revokeObjectURL(url)
-  }
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${session?.title || "quiz"}_results.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
 
   const shareResults = () => {
-    navigator.clipboard.writeText(window.location.href)
-    alert('Results link copied to clipboard!')
-  }
+    navigator.clipboard.writeText(window.location.href);
+    alert("Results link copied to clipboard!");
+  };
 
   if (loading) {
     return (
@@ -249,7 +284,7 @@ export default function QuizResultsPage() {
           </div>
         </div>
       </DashboardLayout>
-    )
+    );
   }
 
   if (!session) {
@@ -259,14 +294,20 @@ export default function QuizResultsPage() {
           <Card className="max-w-md">
             <CardContent className="pt-6 text-center">
               <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-red-600 mb-2">Session Not Found</h2>
-              <p className="text-gray-600 mb-4">The quiz session could not be loaded</p>
-              <Button onClick={() => router.push("/dashboard/quizzes")}>Back to Dashboard</Button>
+              <h2 className="text-2xl font-bold text-red-600 mb-2">
+                Session Not Found
+              </h2>
+              <p className="text-gray-600 mb-4">
+                The quiz session could not be loaded
+              </p>
+              <Button onClick={() => router.push("/dashboard/quizzes")}>
+                Back to Dashboard
+              </Button>
             </CardContent>
           </Card>
         </div>
       </DashboardLayout>
-    )
+    );
   }
 
   return (
@@ -276,7 +317,10 @@ export default function QuizResultsPage() {
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Link href="/dashboard/quizzes" className="text-sm text-gray-500 hover:text-gray-700">
+              <Link
+                href="/dashboard/quizzes"
+                className="text-sm text-gray-500 hover:text-gray-700"
+              >
                 My Quizzes
               </Link>
               <span className="text-gray-300">/</span>
@@ -284,9 +328,12 @@ export default function QuizResultsPage() {
             </div>
             <h1 className="text-3xl font-bold">{session.title} - Results</h1>
             <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
-              <span>Quiz Code: <Badge variant="outline">{session.code}</Badge></span>
               <span>
-                Completed on {new Date(session.createdAt).toLocaleDateString("en-US", {
+                Quiz Code: <Badge variant="outline">{session.code}</Badge>
+              </span>
+              <span>
+                Completed on{" "}
+                {new Date(session.createdAt).toLocaleDateString("en-US", {
                   weekday: "long",
                   year: "numeric",
                   month: "long",
@@ -298,7 +345,12 @@ export default function QuizResultsPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={exportResults} disabled={!results.length}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={exportResults}
+              disabled={!results.length}
+            >
               <Download className="h-4 w-4 mr-2" />
               Export CSV
             </Button>
@@ -317,8 +369,12 @@ export default function QuizResultsPage() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Total Participants</p>
-                      <p className="text-2xl font-bold">{analytics.totalParticipants}</p>
+                      <p className="text-sm font-medium text-gray-600">
+                        Total Participants
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {analytics.totalParticipants}
+                      </p>
                     </div>
                     <Users className="h-8 w-8 text-blue-600" />
                   </div>
@@ -328,8 +384,12 @@ export default function QuizResultsPage() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Average Score</p>
-                      <p className="text-2xl font-bold">{Math.round(analytics.averageScore)}</p>
+                      <p className="text-sm font-medium text-gray-600">
+                        Average Score
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {Math.round(analytics.averageScore)}
+                      </p>
                     </div>
                     <Target className="h-8 w-8 text-green-600" />
                   </div>
@@ -339,8 +399,12 @@ export default function QuizResultsPage() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Average Accuracy</p>
-                      <p className="text-2xl font-bold">{Math.round(analytics.averageAccuracy)}%</p>
+                      <p className="text-sm font-medium text-gray-600">
+                        Average Accuracy
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {Math.round(analytics.averageAccuracy)}%
+                      </p>
                     </div>
                     <TrendingUp className="h-8 w-8 text-purple-600" />
                   </div>
@@ -350,8 +414,12 @@ export default function QuizResultsPage() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-600">Total Questions</p>
-                      <p className="text-2xl font-bold">{session.questions.length}</p>
+                      <p className="text-sm font-medium text-gray-600">
+                        Total Questions
+                      </p>
+                      <p className="text-2xl font-bold">
+                        {session.questions.length}
+                      </p>
                     </div>
                     <CheckCircle2 className="h-8 w-8 text-emerald-600" />
                   </div>
@@ -360,7 +428,7 @@ export default function QuizResultsPage() {
             </div>
 
             {/* Main Content */}
-{/*             
+            {/*             
             <Tabs value={selectedTab} onValueChange={setSelectedTab} className="space-y-6">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
@@ -436,5 +504,5 @@ export default function QuizResultsPage() {
         )}
       </div>
     </DashboardLayout>
-  )
+  );
 }

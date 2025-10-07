@@ -14,13 +14,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Brain, Eye, EyeOff, Mail, Lock, User, Building } from "lucide-react";
+import { Brain, Eye, EyeOff, Mail, Lock } from "lucide-react";
 
 export default function SignUpPage() {
   const router = useRouter();
 
   const [name, setName] = useState("");
-  const [organizationName, setOrganizationName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");

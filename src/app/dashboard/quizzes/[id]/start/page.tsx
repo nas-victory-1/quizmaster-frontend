@@ -1,15 +1,24 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter, useParams } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Clock, Users, CheckCircle2, XCircle, Trophy, Square, SkipForward, AlertCircle } from "lucide-react"
-import { useSocket } from '@/hooks/useSocket';
-import { getSessionById, updateParticipantScore } from '@/api/session';
+import { useEffect, useState } from "react";
+import { useRouter, useParams } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Clock,
+  Users,
+  CheckCircle2,
+  XCircle,
+  Trophy,
+  Square,
+  SkipForward,
+  AlertCircle,
+} from "lucide-react";
+import { useSocket } from "@/hooks/useSocket";
+import { getSessionById, updateParticipantScore } from "@/api/session";
 
 interface Question {
   question: string;
@@ -56,7 +65,7 @@ export default function QuizStart() {
   // Calculate score based on answers
   const calculateScore = () => {
     if (!quizData) return 0;
-    
+
     let score = 0;
     answers.forEach((answer, index) => {
       if (answer === quizData.questions[index]?.correctAnswer) {
@@ -71,11 +80,14 @@ export default function QuizStart() {
   useEffect(() => {
     const initializeQuiz = async () => {
       try {
-        const storedIsCreator = localStorage.getItem('isCreator') === 'true';
+        const storedIsCreator = localStorage.getItem("isCreator") === "true";
         setIsCreator(storedIsCreator);
 
-        const response = await getSessionById(sessionId as string, storedIsCreator);
-        
+        const response = await getSessionById(
+          sessionId as string,
+          storedIsCreator
+        );
+
         if (response.success) {
           const sessionData = response.data;
           setQuizData({
@@ -83,24 +95,26 @@ export default function QuizStart() {
             questions: sessionData.questions || [],
             currentQuestion: 0,
             totalQuestions: sessionData.questions?.length || 0,
-            id: sessionData.sessionId
+            id: sessionData.sessionId,
           });
-          
+
           // Initialize participants if creator
           if (storedIsCreator && sessionData.participants) {
-            setParticipants(sessionData.participants.map((p: any) => ({
-              ...p,
-              hasAnswered: false
-            })));
+            setParticipants(
+              sessionData.participants.map((p: any) => ({
+                ...p,
+                hasAnswered: false,
+              }))
+            );
           }
-          
+
           // Start first question if creator
           if (storedIsCreator && sessionData.questions?.length > 0) {
             startQuestion(0, sessionData.questions[0]);
           }
         }
       } catch (error) {
-        console.error('Error initializing quiz:', error);
+        console.error("Error initializing quiz:", error);
       } finally {
         setLoading(false);
       }
@@ -111,7 +125,13 @@ export default function QuizStart() {
 
   // Timer effect
   useEffect(() => {
-    if (!quizData || quizEnded || showResults || (isCreator && currentQuestionIndex >= quizData.questions.length)) return;
+    if (
+      !quizData ||
+      quizEnded ||
+      showResults ||
+      (isCreator && currentQuestionIndex >= quizData.questions.length)
+    )
+      return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
@@ -139,10 +159,10 @@ export default function QuizStart() {
   useEffect(() => {
     if (!socket || isCreator) return;
 
-    const handleNewQuestion = (data: { 
-      question: Question; 
-      questionIndex: number; 
-      timeLimit: number 
+    const handleNewQuestion = (data: {
+      question: Question;
+      questionIndex: number;
+      timeLimit: number;
     }) => {
       setCurrentQuestionIndex(data.questionIndex);
       setTimeLeft(data.timeLimit);
@@ -155,12 +175,12 @@ export default function QuizStart() {
       setQuizEnded(true);
     };
 
-    socket.on('new-question', handleNewQuestion);
-    socket.on('quiz-ended', handleQuizEnd);
+    socket.on("new-question", handleNewQuestion);
+    socket.on("quiz-ended", handleQuizEnd);
 
     return () => {
-      socket.off('new-question', handleNewQuestion);
-      socket.off('quiz-ended', handleQuizEnd);
+      socket.off("new-question", handleNewQuestion);
+      socket.off("quiz-ended", handleQuizEnd);
     };
   }, [socket, isCreator]);
 
@@ -169,26 +189,24 @@ export default function QuizStart() {
     setCurrentScore(calculateScore());
   }, [answers, quizData]);
 
-
   // Add this useEffect to join socket room when quiz starts
-useEffect(() => {
-  if (socket && sessionId && !loading) {
-    const storedIsCreator = localStorage.getItem('isCreator') === 'true';
-    const participantId = localStorage.getItem('participantId');
-    const participantName = localStorage.getItem('participantName');
-    
-    // Join the socket room for quiz play
-    socket.emit('join-quiz-room', {
-      sessionId: sessionId as string,
-      participantId: participantId || undefined,
-      participantName: participantName || undefined,
-      isCreator: storedIsCreator,
-    });
+  useEffect(() => {
+    if (socket && sessionId && !loading) {
+      const storedIsCreator = localStorage.getItem("isCreator") === "true";
+      const participantId = localStorage.getItem("participantId");
+      const participantName = localStorage.getItem("participantName");
 
-    console.log('Joined quiz room:', sessionId);
-  }
-}, [socket, sessionId, loading]);
+      // Join the socket room for quiz play
+      socket.emit("join-quiz-room", {
+        sessionId: sessionId as string,
+        participantId: participantId || undefined,
+        participantName: participantName || undefined,
+        isCreator: storedIsCreator,
+      });
 
+      console.log("Joined quiz room:", sessionId);
+    }
+  }, [socket, sessionId, loading]);
 
   const startQuestion = (questionIndex: number, question: Question) => {
     const timeLimit = question.timeLimit || 30;
@@ -199,16 +217,18 @@ useEffect(() => {
 
     // Reset participant answered status
     if (isCreator) {
-      setParticipants(prev => prev.map(p => ({ ...p, hasAnswered: false })));
+      setParticipants((prev) =>
+        prev.map((p) => ({ ...p, hasAnswered: false }))
+      );
     }
 
     // Broadcast question to participants
     if (socket && isCreator) {
-      socket.emit('next-question', {
+      socket.emit("next-question", {
         sessionId,
         question,
         questionIndex,
-        timeLimit
+        timeLimit,
       });
     }
   };
@@ -229,32 +249,34 @@ useEffect(() => {
 
     // Send answer to server
     if (socket) {
-      socket.emit('submit-answer', {
+      socket.emit("submit-answer", {
         sessionId,
-        participantId: localStorage.getItem('participantId'),
+        participantId: localStorage.getItem("participantId"),
         questionIndex: currentQuestionIndex,
         answer: answerIndex,
-        timeToAnswer: (quizData?.questions[currentQuestionIndex]?.timeLimit || 30) - timeLeft
+        timeToAnswer:
+          (quizData?.questions[currentQuestionIndex]?.timeLimit || 30) -
+          timeLeft,
       });
     }
   };
 
- const handleNextQuestion = () => {
-  if (!quizData || !isCreator) return;
+  const handleNextQuestion = () => {
+    if (!quizData || !isCreator) return;
 
-  const nextIndex = currentQuestionIndex + 1;
+    const nextIndex = currentQuestionIndex + 1;
 
-  if (nextIndex >= quizData.questions.length) {
-    // Quiz finished - save participant scores first
-    setQuizEnded(true);
-    if (socket) {
-      socket.emit('end-quiz', { sessionId });
+    if (nextIndex >= quizData.questions.length) {
+      // Quiz finished - save participant scores first
+      setQuizEnded(true);
+      if (socket) {
+        socket.emit("end-quiz", { sessionId });
+      }
+      return;
     }
-    return;
-  }
     setCurrentQuestionIndex(nextIndex);
     startQuestion(nextIndex, quizData.questions[nextIndex]);
-  }
+  };
 
   const handleManualNext = () => {
     if (isCreator) {
@@ -262,70 +284,71 @@ useEffect(() => {
     }
   };
 
-const handleEndQuiz = async () => {
-  if (isCreator) {
-    setQuizEnded(true);
-    if (socket) {
-      socket.emit('end-quiz', { sessionId });
-    }
-  } else {
-    // Participant - send their final score to backend
-    if (quizData) {
-      const finalScore = answers.filter((answer, index) => 
-        answer === quizData.questions[index]?.correctAnswer
-      ).length;
-      
-      try {
-        await updateParticipantScore(sessionId as string, 
-          localStorage.getItem('participantId') as string, 
-          finalScore
-        );
-      } catch (error) {
-        console.error('Failed to save final score:', error);
+  const handleEndQuiz = async () => {
+    if (isCreator) {
+      setQuizEnded(true);
+      if (socket) {
+        socket.emit("end-quiz", { sessionId });
       }
+    } else {
+      // Participant - send their final score to backend
+      if (quizData) {
+        const finalScore = answers.filter(
+          (answer, index) => answer === quizData.questions[index]?.correctAnswer
+        ).length;
+
+        try {
+          await updateParticipantScore(
+            sessionId as string,
+            localStorage.getItem("participantId") as string,
+            finalScore
+          );
+        } catch (error) {
+          console.error("Failed to save final score:", error);
+        }
+      }
+
+      setQuizEnded(true);
     }
-    
-    setQuizEnded(true);
-  }
-};
+  };
 
   // Listen for participant answers (creator only)
   useEffect(() => {
     if (!socket || !isCreator) return;
 
     const handleAnswerReceived = (data: { participantId: string }) => {
-      setParticipants(prev => prev.map(p => 
-        p.id === data.participantId 
-          ? { ...p, hasAnswered: true }
-          : p
-      ));
+      setParticipants((prev) =>
+        prev.map((p) =>
+          p.id === data.participantId ? { ...p, hasAnswered: true } : p
+        )
+      );
     };
 
-    socket.on('answer-received', handleAnswerReceived);
+    socket.on("answer-received", handleAnswerReceived);
 
     return () => {
-      socket.off('answer-received', handleAnswerReceived);
+      socket.off("answer-received", handleAnswerReceived);
     };
   }, [socket, isCreator]);
 
   useEffect(() => {
     if (quizEnded && !isCreator && answers.length > 0 && quizData) {
-      const finalScore = answers.filter((answer, index) => 
-        answer === quizData.questions[index]?.correctAnswer
+      const finalScore = answers.filter(
+        (answer, index) => answer === quizData.questions[index]?.correctAnswer
       ).length;
-      
+
       const saveScore = async () => {
         try {
           await updateParticipantScore(
-            sessionId as string, 
-            localStorage.getItem('participantId') as string, 
+            sessionId as string,
+            localStorage.getItem("participantId") as string,
             finalScore
           );
         } catch (error) {
-          console.error('Failed to save final score:', error);
+          console.error("Failed to save final score:", error);
         }
       };
-      
+
       saveScore();
     }
   }, [quizEnded, isCreator, answers, sessionId, quizData]);
@@ -338,7 +361,7 @@ const handleEndQuiz = async () => {
           <p className="text-gray-600">Loading quiz...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!quizData) {
@@ -349,11 +372,13 @@ const handleEndQuiz = async () => {
             <XCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
             <h2 className="text-2xl font-bold text-red-600 mb-2">Error</h2>
             <p className="text-gray-600 mb-4">Failed to load quiz data</p>
-            <Button onClick={() => router.push("/dashboard")}>Back to Dashboard</Button>
+            <Button onClick={() => router.push("/dashboard")}>
+              Back to Dashboard
+            </Button>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   if (quizEnded) {
@@ -367,25 +392,38 @@ const handleEndQuiz = async () => {
             {!isCreator && (
               <div className="mb-6">
                 <p className="text-lg text-gray-600 mb-2">Your Final Score</p>
-                <div className="text-4xl font-bold text-purple-600 mb-4">{currentScore}</div>
+                <div className="text-4xl font-bold text-purple-600 mb-4">
+                  {currentScore}
+                </div>
                 <p className="text-gray-500">
                   You answered{" "}
-                  {answers.filter((answer, index) => answer === quizData.questions[index]?.correctAnswer).length} out of{" "}
-                  {quizData.questions.length} questions correctly
+                  {
+                    answers.filter(
+                      (answer, index) =>
+                        answer === quizData.questions[index]?.correctAnswer
+                    ).length
+                  }{" "}
+                  out of {quizData.questions.length} questions correctly
                 </p>
               </div>
             )}
 
             {isCreator && (
               <div className="mb-6">
-                <p className="text-lg text-gray-600 mb-4">Quiz session ended successfully</p>
+                <p className="text-lg text-gray-600 mb-4">
+                  Quiz session ended successfully
+                </p>
                 <div className="grid grid-cols-2 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-blue-600">{participants.length}</div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {participants.length}
+                    </div>
                     <div className="text-sm text-gray-500">Participants</div>
                   </div>
                   <div>
-                    <div className="text-2xl font-bold text-green-600">{quizData.questions.length}</div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {quizData.questions.length}
+                    </div>
                     <div className="text-sm text-gray-500">Questions</div>
                   </div>
                 </div>
@@ -393,11 +431,20 @@ const handleEndQuiz = async () => {
             )}
 
             <div className="flex gap-4 justify-center">
-              <Button onClick={() => router.push(`${isCreator ? '/dashboard' : 'leaderboard'}`)}>
+              <Button
+                onClick={() =>
+                  router.push(`${isCreator ? "/dashboard" : "leaderboard"}`)
+                }
+              >
                 {isCreator ? "Back to Dashboard" : "Exit Quiz"}
               </Button>
               {isCreator && quizData.id && (
-                <Button variant="outline" onClick={() => router.push(`/dashboard/quizzes/${quizData.id}/leaderboard`)}>
+                <Button
+                  variant="outline"
+                  onClick={() =>
+                    router.push(`/dashboard/quizzes/${quizData.id}/leaderboard`)
+                  }
+                >
                   View Results
                 </Button>
               )}
@@ -405,21 +452,26 @@ const handleEndQuiz = async () => {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
-  const currentQuestion = quizData.questions[currentQuestionIndex]
-  const progressPercentage = ((currentQuestionIndex + 1) / quizData.totalQuestions) * 100
-  const timePercentage = currentQuestion ? (timeLeft / (currentQuestion.timeLimit || 30)) * 100 : 0
+  const currentQuestion = quizData.questions[currentQuestionIndex];
+  const progressPercentage =
+    ((currentQuestionIndex + 1) / quizData.totalQuestions) * 100;
+  const timePercentage = currentQuestion
+    ? (timeLeft / (currentQuestion.timeLimit || 30)) * 100
+    : 0;
 
   if (!currentQuestion) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-background flex items-center justify-center">
         <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-800">Loading question...</h2>
+          <h2 className="text-2xl font-bold text-gray-800">
+            Loading question...
+          </h2>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -448,7 +500,9 @@ const handleEndQuiz = async () => {
             <CardContent className="pt-6">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm font-medium">Quiz Progress</span>
-                <span className="text-sm text-gray-500">{Math.round(progressPercentage)}%</span>
+                <span className="text-sm text-gray-500">
+                  {Math.round(progressPercentage)}%
+                </span>
               </div>
               <Progress value={progressPercentage} className="h-2" />
             </CardContent>
@@ -461,14 +515,22 @@ const handleEndQuiz = async () => {
               <Card>
                 <CardContent className="pt-6">
                   <div className="text-center mb-4">
-                    <div className={`text-4xl font-bold ${timeLeft <= 10 ? "text-red-600" : "text-purple-600"}`}>
+                    <div
+                      className={`text-4xl font-bold ${
+                        timeLeft <= 10 ? "text-red-600" : "text-purple-600"
+                      }`}
+                    >
                       {timeLeft}s
                     </div>
                     <p className="text-sm text-gray-500 mt-1">Time remaining</p>
                   </div>
                   <Progress
                     value={timePercentage}
-                    className={`h-2 ${timeLeft <= 10 ? "[&>div]:bg-red-500" : "[&>div]:bg-green-500"}`}
+                    className={`h-2 ${
+                      timeLeft <= 10
+                        ? "[&>div]:bg-red-500"
+                        : "[&>div]:bg-green-500"
+                    }`}
                   />
                 </CardContent>
               </Card>
@@ -476,7 +538,9 @@ const handleEndQuiz = async () => {
               {/* Question */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-xl text-center">{currentQuestion.question}</CardTitle>
+                  <CardTitle className="text-xl text-center">
+                    {currentQuestion.question}
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   {showResults && !isCreator ? (
@@ -489,8 +553,8 @@ const handleEndQuiz = async () => {
                             index === currentQuestion.correctAnswer
                               ? "border-green-500 bg-green-50 dark:bg-green-900/20"
                               : selectedAnswer === index
-                                ? "border-red-500 bg-red-50 dark:bg-red-900/20"
-                                : "border-gray-200 bg-gray-50 dark:bg-gray-800"
+                              ? "border-red-500 bg-red-50 dark:bg-red-900/20"
+                              : "border-gray-200 bg-gray-50 dark:bg-gray-800"
                           }`}
                         >
                           <div className="flex items-center justify-between">
@@ -498,9 +562,10 @@ const handleEndQuiz = async () => {
                             {index === currentQuestion.correctAnswer && (
                               <CheckCircle2 className="h-5 w-5 text-green-600" />
                             )}
-                            {selectedAnswer === index && index !== currentQuestion.correctAnswer && (
-                              <XCircle className="h-5 w-5 text-red-600" />
-                            )}
+                            {selectedAnswer === index &&
+                              index !== currentQuestion.correctAnswer && (
+                                <XCircle className="h-5 w-5 text-red-600" />
+                              )}
                           </div>
                         </div>
                       ))}
@@ -514,10 +579,14 @@ const handleEndQuiz = async () => {
                         ) : (
                           <div className="text-red-600 font-medium">
                             <XCircle className="h-6 w-6 mx-auto mb-2" />
-                            {selectedAnswer !== null ? "Incorrect" : "Time's up!"}
+                            {selectedAnswer !== null
+                              ? "Incorrect"
+                              : "Time's up!"}
                           </div>
                         )}
-                        <p className="text-sm text-gray-500 mt-2">Waiting for next question...</p>
+                        <p className="text-sm text-gray-500 mt-2">
+                          Waiting for next question...
+                        </p>
                       </div>
                     </div>
                   ) : (
@@ -526,10 +595,16 @@ const handleEndQuiz = async () => {
                       {currentQuestion.options.map((option, index) => (
                         <Button
                           key={index}
-                          variant={selectedAnswer === index ? "default" : "outline"}
+                          variant={
+                            selectedAnswer === index ? "default" : "outline"
+                          }
                           className={`h-auto py-4 px-6 text-left justify-start ${
-                            selectedAnswer === index ? "bg-purple-600 hover:bg-purple-700" : ""
-                          } ${isCreator ? "cursor-not-allowed opacity-60" : ""}`}
+                            selectedAnswer === index
+                              ? "bg-purple-600 hover:bg-purple-700"
+                              : ""
+                          } ${
+                            isCreator ? "cursor-not-allowed opacity-60" : ""
+                          }`}
                           onClick={() => handleAnswerSelect(index)}
                           disabled={isCreator || hasAnswered || showResults}
                         >
@@ -544,11 +619,14 @@ const handleEndQuiz = async () => {
                     <div className="mt-6 pt-6 border-t">
                       <div className="text-center mb-4">
                         <p className="text-gray-600 mb-2">
-                          {participants.filter((p) => p.hasAnswered).length} of {participants.length} participants
-                          answered
+                          {participants.filter((p) => p.hasAnswered).length} of{" "}
+                          {participants.length} participants answered
                         </p>
                         <div className="flex justify-center gap-2">
-                          <Button onClick={handleNextQuestion} className="bg-blue-600 hover:bg-blue-700">
+                          <Button
+                            onClick={handleNextQuestion}
+                            className="bg-blue-600 hover:bg-blue-700"
+                          >
                             <SkipForward className="h-4 w-4 mr-2" />
                             Next Question
                           </Button>
@@ -584,9 +662,17 @@ const handleEndQuiz = async () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-center">
-                      <div className="text-3xl font-bold text-purple-600 mb-2">{currentScore}</div>
+                      <div className="text-3xl font-bold text-purple-600 mb-2">
+                        {currentScore}
+                      </div>
                       <p className="text-sm text-gray-500">
-                        {answers.filter((answer, index) => answer === quizData.questions[index]?.correctAnswer).length}{" "}
+                        {
+                          answers.filter(
+                            (answer, index) =>
+                              answer ===
+                              quizData.questions[index]?.correctAnswer
+                          ).length
+                        }{" "}
                         correct answers
                       </p>
                     </div>
@@ -606,12 +692,19 @@ const handleEndQuiz = async () => {
                   <CardContent>
                     <div className="space-y-3">
                       {participants.map((participant) => (
-                        <div key={participant.id} className="flex items-center justify-between">
+                        <div
+                          key={participant.id}
+                          className="flex items-center justify-between"
+                        >
                           <div className="flex items-center gap-2">
                             <Avatar className="h-8 w-8">
-                              <AvatarFallback>{participant.name.charAt(0)}</AvatarFallback>
+                              <AvatarFallback>
+                                {participant.name.charAt(0)}
+                              </AvatarFallback>
                             </Avatar>
-                            <span className="text-sm font-medium">{participant.name}</span>
+                            <span className="text-sm font-medium">
+                              {participant.name}
+                            </span>
                           </div>
                           <div className="flex items-center gap-2">
                             {participant.hasAnswered ? (
@@ -634,16 +727,28 @@ const handleEndQuiz = async () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Total Questions</span>
-                    <span className="font-medium">{quizData.totalQuestions}</span>
+                    <span className="text-sm text-gray-600">
+                      Total Questions
+                    </span>
+                    <span className="font-medium">
+                      {quizData.totalQuestions}
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Current Question</span>
-                    <span className="font-medium">{currentQuestionIndex + 1}</span>
+                    <span className="text-sm text-gray-600">
+                      Current Question
+                    </span>
+                    <span className="font-medium">
+                      {currentQuestionIndex + 1}
+                    </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Time per Question</span>
-                    <span className="font-medium">{currentQuestion.timeLimit || 30}s</span>
+                    <span className="text-sm text-gray-600">
+                      Time per Question
+                    </span>
+                    <span className="font-medium">
+                      {currentQuestion.timeLimit || 30}s
+                    </span>
                   </div>
                 </CardContent>
               </Card>
@@ -652,5 +757,5 @@ const handleEndQuiz = async () => {
         </div>
       </div>
     </div>
-  )
+  );
 }
