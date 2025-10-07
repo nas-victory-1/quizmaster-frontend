@@ -1,9 +1,6 @@
 "use client";
 import { TabsContent } from "./ui/tabs";
 import { Card, CardContent } from "./ui/card";
-import { Label } from "./ui/label";
-import { Switch } from "./ui/switch";
-import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import { QuizData } from "@/types/types";
 import { useParams, useRouter } from "next/navigation";
@@ -17,12 +14,7 @@ type Props = {
   setQuizData: React.Dispatch<React.SetStateAction<QuizData>>;
 };
 
-const Settings = ({
-  quizData,
-  setErrors,
-  setActiveTab,
-  setQuizData,
-}: Props) => {
+const Settings = ({ quizData, setErrors, setActiveTab }: Props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const { id } = useParams();

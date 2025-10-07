@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
-import { io, Socket } from 'socket.io-client';
+import { useEffect, useState } from "react";
+import { io, Socket } from "socket.io-client";
 
-const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000';
+const SOCKET_URL =
+  process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000";
 
 export const useSocket = (sessionId?: string) => {
   const [socket, setSocket] = useState<Socket | null>(null);
@@ -15,28 +16,32 @@ export const useSocket = (sessionId?: string) => {
       timeout: 5000,
       reconnection: false, // Don't keep retrying if server is down
     });
-    
+
     setSocket(socketInstance);
 
-    socketInstance.on('connect', () => {
-      console.log('Socket connected successfully');
+    socketInstance.on("connect", () => {
+      console.log("Socket connected successfully");
       setIsConnected(true);
     });
 
-    socketInstance.on('connect_error', (error) => {
-      console.log('Socket connection failed - running in offline mode');
+    socketInstance.on("connect_error", (error) => {
+      console.log("Socket connection failed - running in offline mode");
       setIsConnected(false);
+      console.error(error);
       // Don't spam with reconnection attempts
     });
 
-    socketInstance.on('disconnect', () => {
+    socketInstance.on("disconnect", () => {
       setIsConnected(false);
     });
 
     // Listen for participant count updates
-    socketInstance.on('participant-count-update', (data: { participantCount: number }) => {
-      setParticipantCount(data.participantCount);
-    });
+    socketInstance.on(
+      "participant-count-update",
+      (data: { participantCount: number }) => {
+        setParticipantCount(data.participantCount);
+      }
+    );
 
     return () => {
       socketInstance.disconnect();
@@ -50,13 +55,13 @@ export const useSocket = (sessionId?: string) => {
     isCreator?: boolean;
   }) => {
     if (socket) {
-      socket.emit('join-quiz-room', data);
+      socket.emit("join-quiz-room", data);
     }
   };
 
   const startQuiz = (sessionId: string) => {
     if (socket) {
-      socket.emit('start-quiz', { sessionId });
+      socket.emit("start-quiz", { sessionId });
     }
   };
 
@@ -67,7 +72,7 @@ export const useSocket = (sessionId?: string) => {
     timeLimit: number;
   }) => {
     if (socket) {
-      socket.emit('next-question', data);
+      socket.emit("next-question", data);
     }
   };
 
