@@ -1,28 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { User, Bell, Shield, CreditCard, Palette, Save } from "lucide-react";
-import DashboardLayout from "@/components/DashboardLayout";
-import PrivacyTab from "@/components/PrivacyTab";
-import ProfileTab from "@/components/ProfileTab";
-import NotificationsTab from "@/components/NotificationsTab";
-import AppearanceTab from "@/components/AppearanceTab";
-import AccountTab from "@/components/AccountTab";
 import ComingSoon from "@/components/ComingSoon";
 
 export default function SettingsPage() {
-  const [activeTab, setActiveTab] = useState("profile");
-  const [isSaving, setIsSaving] = useState(false);
+  // const [activeTab, setActiveTab] = useState("profile");
+  // const [isSaving, setIsSaving] = useState(false);
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSaving(false);
-    alert("Settings saved successfully!");
-  };
+  // const handleSave = async () => {
+  //   setIsSaving(true);
+  //   // Simulate API call
+  //   await new Promise((resolve) => setTimeout(resolve, 1000));
+  //   setIsSaving(false);
+  //   alert("Settings saved successfully!");
+  // };
 
   return (
     // <DashboardLayout>

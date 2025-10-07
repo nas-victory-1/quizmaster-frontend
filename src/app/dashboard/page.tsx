@@ -13,10 +13,8 @@ import {
   PlusCircle,
   Clock,
   Users,
-  BarChart,
   Edit,
   Trash2,
-  ExternalLink,
   PlayCircle,
 } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
