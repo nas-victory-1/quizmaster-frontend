@@ -61,7 +61,7 @@ export default function EditQuizPage() {
     };
 
     fetchQuiz();
-  }, [id, error]);
+  }, [id]);
 
   // safer typed update helpers
   const updateQuizData = <K extends keyof QuizData>(

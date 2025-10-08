@@ -69,16 +69,21 @@ export default function DashboardPage() {
   };
 
   // Start a live quiz session
+  // Start a live quiz session
   const startLiveSession = async (quiz: Quiz) => {
     try {
       setCreatingSession(quiz._id);
 
-      // Get user data from localStorage (added this line)
       const userData = JSON.parse(localStorage.getItem("user") || "{}");
 
       const sessionResponse = await createQuizSession({
         title: quiz.title,
-        questions: quiz.questions,
+        questions: quiz.questions.map((q) => ({
+          question: q.text, // ← "text" becomes "question"
+          options: q.options.map((opt) => opt.text), // ← Extract just the text
+          correctAnswer: q.options.findIndex((opt) => opt.isCorrect), // ← Find index of correct answer
+          timeLimit: q.timeLimit,
+        })),
         creatorId: userData.id || "temp-user",
       });
 
