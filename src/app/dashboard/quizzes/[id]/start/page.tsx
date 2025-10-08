@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,6 +43,13 @@ interface QuizData {
   id?: string;
 }
 
+interface SessionData {
+  title: string;
+  questions: Question[];
+  sessionId: string;
+  participants: Participant[];
+}
+
 export default function QuizStart() {
   const router = useRouter();
   const params = useParams();
@@ -63,18 +70,70 @@ export default function QuizStart() {
   const { socket } = useSocket(sessionId as string);
 
   // Calculate score based on answers
-  const calculateScore = () => {
+  const calculateScore = useCallback(() => {
     if (!quizData) return 0;
 
     let score = 0;
     answers.forEach((answer, index) => {
       if (answer === quizData.questions[index]?.correctAnswer) {
-        // Base score + time bonus (if answer was quick)
         score += 1;
       }
     });
     return score;
-  };
+  }, [answers, quizData]);
+
+  // Start question function
+  const startQuestion = useCallback(
+    (questionIndex: number, question: Question) => {
+      const timeLimit = question.timeLimit || 30;
+      setTimeLeft(timeLimit);
+      setSelectedAnswer(null);
+      setHasAnswered(false);
+      setShowResults(false);
+
+      // Reset participant answered status
+      if (isCreator) {
+        setParticipants((prev) =>
+          prev.map((p) => ({ ...p, hasAnswered: false }))
+        );
+      }
+
+      // Broadcast question to participants
+      if (socket && isCreator) {
+        socket.emit("next-question", {
+          sessionId,
+          question,
+          questionIndex,
+          timeLimit,
+        });
+      }
+    },
+    [isCreator, socket, sessionId]
+  );
+
+  // Handle next question
+  const handleNextQuestion = useCallback(() => {
+    if (!quizData || !isCreator) return;
+
+    const nextIndex = currentQuestionIndex + 1;
+
+    if (nextIndex >= quizData.questions.length) {
+      setQuizEnded(true);
+      if (socket) {
+        socket.emit("end-quiz", { sessionId });
+      }
+      return;
+    }
+    setCurrentQuestionIndex(nextIndex);
+    startQuestion(nextIndex, quizData.questions[nextIndex]);
+  }, [
+    quizData,
+    isCreator,
+    currentQuestionIndex,
+    socket,
+    sessionId,
+    startQuestion,
+  ]);
 
   // Initialize quiz data
   useEffect(() => {
@@ -89,7 +148,7 @@ export default function QuizStart() {
         );
 
         if (response.success) {
-          const sessionData = response.data;
+          const sessionData: SessionData = response.data;
           setQuizData({
             title: sessionData.title,
             questions: sessionData.questions || [],
@@ -101,7 +160,7 @@ export default function QuizStart() {
           // Initialize participants if creator
           if (storedIsCreator && sessionData.participants) {
             setParticipants(
-              sessionData.participants.map((p: any) => ({
+              sessionData.participants.map((p) => ({
                 ...p,
                 hasAnswered: false,
               }))
@@ -121,7 +180,7 @@ export default function QuizStart() {
     };
 
     initializeQuiz();
-  }, [sessionId]);
+  }, [sessionId, startQuestion]);
 
   // Timer effect
   useEffect(() => {
@@ -136,15 +195,13 @@ export default function QuizStart() {
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          // Time's up - move to next question
           if (isCreator) {
             handleNextQuestion();
           } else {
-            // Show results for participants
             setShowResults(true);
             setTimeout(() => {
               setShowResults(false);
-            }, 3000); // Show results for 3 seconds
+            }, 3000);
           }
           return 0;
         }
@@ -153,7 +210,14 @@ export default function QuizStart() {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [currentQuestionIndex, quizData, quizEnded, isCreator, showResults]);
+  }, [
+    currentQuestionIndex,
+    quizData,
+    quizEnded,
+    isCreator,
+    showResults,
+    handleNextQuestion,
+  ]);
 
   // Socket listeners for participants
   useEffect(() => {
@@ -187,16 +251,15 @@ export default function QuizStart() {
   // Update score when answers change
   useEffect(() => {
     setCurrentScore(calculateScore());
-  }, [answers, quizData]);
+  }, [calculateScore]);
 
-  // Add this useEffect to join socket room when quiz starts
+  // Join socket room when quiz starts
   useEffect(() => {
     if (socket && sessionId && !loading) {
       const storedIsCreator = localStorage.getItem("isCreator") === "true";
       const participantId = localStorage.getItem("participantId");
       const participantName = localStorage.getItem("participantName");
 
-      // Join the socket room for quiz play
       socket.emit("join-quiz-room", {
         sessionId: sessionId as string,
         participantId: participantId || undefined,
@@ -208,46 +271,18 @@ export default function QuizStart() {
     }
   }, [socket, sessionId, loading]);
 
-  const startQuestion = (questionIndex: number, question: Question) => {
-    const timeLimit = question.timeLimit || 30;
-    setTimeLeft(timeLimit);
-    setSelectedAnswer(null);
-    setHasAnswered(false);
-    setShowResults(false);
-
-    // Reset participant answered status
-    if (isCreator) {
-      setParticipants((prev) =>
-        prev.map((p) => ({ ...p, hasAnswered: false }))
-      );
-    }
-
-    // Broadcast question to participants
-    if (socket && isCreator) {
-      socket.emit("next-question", {
-        sessionId,
-        question,
-        questionIndex,
-        timeLimit,
-      });
-    }
-  };
-
   const handleAnswerSelect = (answerIndex: number) => {
     if (hasAnswered || isCreator || showResults) return;
 
     setSelectedAnswer(answerIndex);
     setHasAnswered(true);
 
-    // Store answer
     const newAnswers = [...answers];
     newAnswers[currentQuestionIndex] = answerIndex;
     setAnswers(newAnswers);
 
-    // Show results immediately after answering
     setShowResults(true);
 
-    // Send answer to server
     if (socket) {
       socket.emit("submit-answer", {
         sessionId,
@@ -261,29 +296,6 @@ export default function QuizStart() {
     }
   };
 
-  const handleNextQuestion = () => {
-    if (!quizData || !isCreator) return;
-
-    const nextIndex = currentQuestionIndex + 1;
-
-    if (nextIndex >= quizData.questions.length) {
-      // Quiz finished - save participant scores first
-      setQuizEnded(true);
-      if (socket) {
-        socket.emit("end-quiz", { sessionId });
-      }
-      return;
-    }
-    setCurrentQuestionIndex(nextIndex);
-    startQuestion(nextIndex, quizData.questions[nextIndex]);
-  };
-
-  const handleManualNext = () => {
-    if (isCreator) {
-      handleNextQuestion();
-    }
-  };
-
   const handleEndQuiz = async () => {
     if (isCreator) {
       setQuizEnded(true);
@@ -291,7 +303,6 @@ export default function QuizStart() {
         socket.emit("end-quiz", { sessionId });
       }
     } else {
-      // Participant - send their final score to backend
       if (quizData) {
         const finalScore = answers.filter(
           (answer, index) => answer === quizData.questions[index]?.correctAnswer
@@ -331,6 +342,7 @@ export default function QuizStart() {
     };
   }, [socket, isCreator]);
 
+  // Save final score when quiz ends
   useEffect(() => {
     if (quizEnded && !isCreator && answers.length > 0 && quizData) {
       const finalScore = answers.filter(
@@ -544,7 +556,6 @@ export default function QuizStart() {
                 </CardHeader>
                 <CardContent>
                   {showResults && !isCreator ? (
-                    // Show results for participants
                     <div className="space-y-3">
                       {currentQuestion.options.map((option, index) => (
                         <div
@@ -574,7 +585,7 @@ export default function QuizStart() {
                         {selectedAnswer === currentQuestion.correctAnswer ? (
                           <div className="text-green-600 font-medium">
                             <CheckCircle2 className="h-6 w-6 mx-auto mb-2" />
-                            Correct! +{1} point
+                            Correct! +1 point
                           </div>
                         ) : (
                           <div className="text-red-600 font-medium">
@@ -590,7 +601,6 @@ export default function QuizStart() {
                       </div>
                     </div>
                   ) : (
-                    // Show answer options
                     <div className="grid gap-3 md:grid-cols-2">
                       {currentQuestion.options.map((option, index) => (
                         <Button

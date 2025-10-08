@@ -18,7 +18,7 @@ const Assistant = () => {
       <CardContent className="pt-6">
         <div className="flex items-start gap-4">
           <h1 className="font-bold test-red">
-            NOTE: This feature hasn't been implemented yet
+            {" NOTE: This feature hasn't been implemented yet"}
           </h1>
           <div className="bg-purple-600 text-white p-2 rounded-md">
             <Brain size={24} />

@@ -58,10 +58,10 @@ const Questions = ({ quizData, setQuizData, setActiveTab }: Props) => {
     }));
   };
 
-  const updateQuestion = (
+  const updateQuestion = <K extends keyof Question>(
     questionId: string,
-    field: keyof Question,
-    value: any
+    field: K,
+    value: Question[K]
   ) => {
     setQuizData((prev) => ({
       ...prev,
@@ -97,11 +97,11 @@ const Questions = ({ quizData, setQuizData, setActiveTab }: Props) => {
     }));
   };
 
-  const updateOption = (
+  const updateOption = <K extends keyof Option>(
     questionId: string,
     optionId: string,
-    field: keyof Option,
-    value: any
+    field: K,
+    value: Option[K]
   ) => {
     setQuizData((prev) => ({
       ...prev,
@@ -150,9 +150,6 @@ const Questions = ({ quizData, setQuizData, setActiveTab }: Props) => {
               AI Assistant
             </Label>
           </div>
-          {/* <Button onClick={addQuestion}>
-                <Plus className="h-4 w-4 mr-1" /> Add Question
-              </Button> */}
         </div>
       </div>
 

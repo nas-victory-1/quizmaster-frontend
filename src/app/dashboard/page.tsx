@@ -22,13 +22,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { getAllQuizzes } from "@/api/quiz";
 import { createQuizSession } from "@/api/session";
+import { Question } from "@/types/types";
 
 interface Quiz {
   _id: string;
   title: string;
   description: string;
   category: string;
-  questions: any[];
+  questions: Question[];
   status: string;
   createdAt: string;
   participants: number;
@@ -78,7 +79,7 @@ export default function DashboardPage() {
       const sessionResponse = await createQuizSession({
         title: quiz.title,
         questions: quiz.questions,
-        creatorId: userData.id || "temp-user", // Now userData is defined!
+        creatorId: userData.id || "temp-user",
       });
 
       if (sessionResponse.success) {

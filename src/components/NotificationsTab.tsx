@@ -44,7 +44,7 @@ const NotificationsTab = () => {
         <CardHeader>
           <CardTitle>Email Notifications</CardTitle>
           <CardDescription>
-            Choose what email notifications you'd like to receive
+            {" Choose what email notifications you'd like to receive"}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">

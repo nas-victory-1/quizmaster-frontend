@@ -1,11 +1,19 @@
-import api from './axios';
+import api from "./axios";
+
+// Backend expects this format (different from frontend Question type)
+interface SessionQuestion {
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  timeLimit?: number;
+}
 
 export const createQuizSession = async (payload: {
   title: string;
-  questions: any[];
+  questions: SessionQuestion[];
   creatorId: string;
 }) => {
-  const res = await api.post('/session/create', payload);
+  const res = await api.post("/session/create", payload);
   return res.data;
 };
 
@@ -23,8 +31,13 @@ export const getSessionInfo = async (code: string) => {
 };
 
 // Get session by ID (for waiting room)
-export const getSessionById = async (sessionId: string, isCreator: boolean = false) => {
-  const res = await api.get(`/session/session/${sessionId}?isCreator=${isCreator}`);
+export const getSessionById = async (
+  sessionId: string,
+  isCreator: boolean = false
+) => {
+  const res = await api.get(
+    `/session/session/${sessionId}?isCreator=${isCreator}`
+  );
   return res.data;
 };
 
@@ -33,10 +46,14 @@ export const startQuizSession = async (sessionId: string) => {
   return res.data;
 };
 
-export const updateParticipantScore = async (sessionId: string, participantId: string, finalScore: number) => {
+export const updateParticipantScore = async (
+  sessionId: string,
+  participantId: string,
+  finalScore: number
+) => {
   const res = await api.post(`/session/${sessionId}/update-score`, {
     participantId,
-    finalScore
+    finalScore,
   });
   return res.data;
 };

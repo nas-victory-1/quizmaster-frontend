@@ -1,48 +1,50 @@
-'use client'
-import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { joinQuizSession } from '@/api/session';
+"use client";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { joinQuizSession } from "@/api/session";
 
 export default function JoinQuiz() {
-  const [code, setCode] = useState('');
-  const [name, setName] = useState('');
+  const [code, setCode] = useState("");
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleJoinQuiz = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!code.trim() || !name.trim()) {
-      setError('Please enter both quiz code and your name');
+      setError("Please enter both quiz code and your name");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
       const response = await joinQuizSession({
         code: code.trim().toUpperCase(),
-        participantName: name.trim()
+        participantName: name.trim(),
       });
 
       if (response.success) {
         // Store participant info in localStorage
-        localStorage.setItem('participantId', response.data.participantId);
-        localStorage.setItem('sessionId', response.data.sessionId);
-        localStorage.setItem('participantName', name.trim());
-        localStorage.setItem('quizTitle', response.data.quizTitle);
-        localStorage.setItem('quizCode', code.trim().toUpperCase()); // Store the quiz code!
-        localStorage.setItem('isCreator', 'false'); // Mark as participant
-        
+        localStorage.setItem("participantId", response.data.participantId);
+        localStorage.setItem("sessionId", response.data.sessionId);
+        localStorage.setItem("participantName", name.trim());
+        localStorage.setItem("quizTitle", response.data.quizTitle);
+        localStorage.setItem("quizCode", code.trim().toUpperCase()); // Store the quiz code!
+        localStorage.setItem("isCreator", "false"); // Mark as participant
+
         // Redirect to waiting room
-        router.push(`/dashboard/quizzes/${response.data.sessionId}/waiting-room`);
+        router.push(
+          `/dashboard/quizzes/${response.data.sessionId}/waiting-room`
+        );
       } else {
-        setError(response.error || 'Failed to join quiz');
+        setError(response.error || "Failed to join quiz");
       }
     } catch (err) {
-      setError('Network error. Please try again.');
+      setError("Network error. Please try again.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -59,7 +61,10 @@ export default function JoinQuiz() {
 
         <form onSubmit={handleJoinQuiz} className="space-y-4">
           <div>
-            <label htmlFor="code" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="code"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Quiz Code
             </label>
             <input
@@ -75,7 +80,10 @@ export default function JoinQuiz() {
           </div>
 
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
               Your Name
             </label>
             <input
@@ -100,15 +108,15 @@ export default function JoinQuiz() {
             disabled={loading}
             className="w-full bg-purple-600 text-white py-2 px-4 rounded-md hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Joining...' : 'Join Quiz'}
+            {loading ? "Joining..." : "Join Quiz"}
           </button>
         </form>
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-500">
-            Don't have a code?{' '}
+            {"Don't have a code?"}{" "}
             <button
-              onClick={() => router.push('/create')}
+              onClick={() => router.push("/create")}
               className="text-purple-600 hover:text-purple-700 font-medium"
             >
               Create your own quiz

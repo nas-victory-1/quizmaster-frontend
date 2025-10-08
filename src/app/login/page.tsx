@@ -37,7 +37,7 @@ export default function LoginPage() {
             <h1 className="text-xl font-bold">QuizMaster</h1>
           </Link>
           <div className="text-sm text-gray-600">
-            Don't have an account?{" "}
+            {"Don't have an account? "}
             <Link
               href="/signup"
               className="text-purple-600 hover:text-purple-700 font-medium"
@@ -80,12 +80,20 @@ export default function LoginPage() {
 
                       console.log("Login success:", res.data);
                       router.push("/dashboard");
-                    } catch (err: any) {
+                    } catch (err) {
                       console.error(err);
-                      setError(
-                        err.response?.data?.message ||
-                          "Email or password is incorrect"
-                      );
+                      const errorMessage =
+                        err instanceof Error &&
+                        "response" in err &&
+                        err.response &&
+                        typeof err.response === "object" &&
+                        "data" in err.response &&
+                        err.response.data &&
+                        typeof err.response.data === "object" &&
+                        "message" in err.response.data
+                          ? String(err.response.data.message)
+                          : "Email or password is incorrect";
+                      setError(errorMessage);
                     } finally {
                       setLoading(false);
                     }
@@ -168,8 +176,9 @@ export default function LoginPage() {
                   <Button
                     type="submit"
                     className="w-full bg-purple-600 hover:bg-purple-700"
+                    disabled={loading}
                   >
-                    Sign In
+                    {loading ? "Signing in..." : "Sign In"}
                   </Button>
                 </form>
 
@@ -222,14 +231,6 @@ export default function LoginPage() {
                     GitHub
                   </Button>
                 </div>
-
-                {/* Demo Account */}
-                {/* <Alert>
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    Want to try it out? Use <strong>demo@quizmaster.com</strong> with password <strong>demo123</strong>
-                  </AlertDescription>
-                </Alert> */}
               </>
             ) : (
               <>
@@ -237,8 +238,9 @@ export default function LoginPage() {
                 <div className="text-center mb-4">
                   <h3 className="text-lg font-medium">Reset your password</h3>
                   <p className="text-sm text-gray-600 mt-1">
-                    Enter your email address and we'll send you a link to reset
-                    your password.
+                    {
+                      "Enter your email address and we'll send you a link to reset your password."
+                    }
                   </p>
                 </div>
 

@@ -7,9 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  Trophy,
-  Medal,
-  Award,
   Users,
   Target,
   TrendingUp,
@@ -85,7 +82,7 @@ export default function QuizResultsPage() {
   const params = useParams();
   const router = useRouter();
   const sessionId = params.id as string;
-  const [selectedTab, setSelectedTab] = useState("leaderboard");
+  // const [selectedTab, setSelectedTab] = useState("leaderboard");
   const [loading, setLoading] = useState(true);
   const [session, setSession] = useState<QuizSession | null>(null);
   const [results, setResults] = useState<QuizResult[]>([]);
@@ -105,7 +102,7 @@ export default function QuizResultsPage() {
 
           // Process results from participants
           const processedResults = sessionData.participants
-            .map((participant, index) => {
+            .map((participant) => {
               // Calculate accuracy and other metrics
               // Note: You'll need to store actual answer data in your session model
               // For now, we'll use mock calculations
@@ -208,28 +205,28 @@ export default function QuizResultsPage() {
     }
   }, [sessionId, router]);
 
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1:
-        return <Trophy className="h-6 w-6 text-yellow-500" />;
-      case 2:
-        return <Medal className="h-6 w-6 text-gray-400" />;
-      case 3:
-        return <Award className="h-6 w-6 text-amber-600" />;
-      default:
-        return (
-          <div className="h-6 w-6 flex items-center justify-center text-sm font-bold text-gray-500">
-            #{rank}
-          </div>
-        );
-    }
-  };
+  // const getRankIcon = (rank: number) => {
+  //   switch (rank) {
+  //     case 1:
+  //       return <Trophy className="h-6 w-6 text-yellow-500" />;
+  //     case 2:
+  //       return <Medal className="h-6 w-6 text-gray-400" />;
+  //     case 3:
+  //       return <Award className="h-6 w-6 text-amber-600" />;
+  //     default:
+  //       return (
+  //         <div className="h-6 w-6 flex items-center justify-center text-sm font-bold text-gray-500">
+  //           #{rank}
+  //         </div>
+  //       );
+  //   }
+  // };
 
-  const getAccuracyColor = (accuracy: number) => {
-    if (accuracy >= 80) return "text-green-600";
-    if (accuracy >= 60) return "text-yellow-600";
-    return "text-red-600";
-  };
+  // const getAccuracyColor = (accuracy: number) => {
+  //   if (accuracy >= 80) return "text-green-600";
+  //   if (accuracy >= 60) return "text-yellow-600";
+  //   return "text-red-600";
+  // };
 
   const exportResults = () => {
     if (!results.length) return;

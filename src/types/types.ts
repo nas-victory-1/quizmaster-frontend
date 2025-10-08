@@ -1,14 +1,14 @@
 export interface Option {
-  id: string
-  text: string
-  isCorrect: boolean
+  id: string;
+  text: string;
+  isCorrect: boolean;
 }
 
 export interface Question {
-  id: string
-  text: string
-  timeLimit: number
-  options: Option[]
+  id: string;
+  text: string;
+  timeLimit: number;
+  options: Option[];
 }
 
 type QuizSettings = {
@@ -20,28 +20,27 @@ type QuizSettings = {
 };
 
 export interface QuizData {
-  title: string
-  description: string
-  category: string
-  questions: Question[]
-  settings: QuizSettings,
+  title: string;
+  description: string;
+  category: string;
+  questions: Question[];
+  settings: QuizSettings;
 }
 
 export interface Quiz {
-  _id: string
-  title: string
-  description: string
-  category: string
-  questions: Question[]
-  participants: number
-  status: "draft" | "scheduled" | "live" | "completed"
-  createdAt: string
-  settings: QuizSettings
-  isCorrect: Option
-  scheduledAt?: string
-  completedAt?: string
-  thumbnail?: string
-  averageScore?: number
-  completionRate?: number
+  _id: string;
+  title: string;
+  description: string;
+  category: string;
+  questions: Question[];
+  participants: number;
+  status: "draft" | "scheduled" | "live" | "completed";
+  createdAt: string;
+  settings: QuizSettings;
+  isCorrect: Option;
+  scheduledAt?: string;
+  completedAt?: string;
+  thumbnail?: string;
+  averageScore?: number;
+  completionRate?: number;
 }
-

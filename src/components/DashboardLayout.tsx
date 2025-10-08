@@ -19,9 +19,15 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
+interface User {
+  name: string;
+  email: string;
+  id: string;
+}
+
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   // Get user data from localStorage on mount
   useEffect(() => {
@@ -32,10 +38,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       }
     } catch (error) {
       console.error("Error parsing user data:", error);
-      // If user data is corrupted, redirect to login
       router.push("/login");
     }
-  }, []);
+  }, [router]);
 
   const navItems = [
     { icon: LayoutDashboard, label: "Dashboard", href: "/dashboard" },

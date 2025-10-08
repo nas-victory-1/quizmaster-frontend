@@ -4,6 +4,13 @@ import { io, Socket } from "socket.io-client";
 const SOCKET_URL =
   process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000";
 
+interface QuestionData {
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  timeLimit?: number;
+}
+
 export const useSocket = (sessionId?: string) => {
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
@@ -67,7 +74,7 @@ export const useSocket = (sessionId?: string) => {
 
   const nextQuestion = (data: {
     sessionId: string;
-    question: any;
+    question: QuestionData;
     questionIndex: number;
     timeLimit: number;
   }) => {

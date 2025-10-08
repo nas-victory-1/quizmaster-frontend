@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, Calendar, Clock, Play, CheckCircle2 } from "lucide-react";
 import QuizDropdown from "./QuizDropdown";
 import type { Quiz } from "@/types/types";
+import Image from "next/image";
 
 interface QuizListItemProps {
   quiz: Quiz;
@@ -65,10 +66,10 @@ const QuizListItem = ({
           }}
         >
           <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-            <img
+            <Image
               src={quiz.thumbnail || "/placeholder.svg?height=64&width=64"}
               alt={quiz.title}
-              className="w-full h-full object-cover"
+              fill
             />
           </div>
           <div className="flex-1 min-w-0">

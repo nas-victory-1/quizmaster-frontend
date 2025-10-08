@@ -13,7 +13,7 @@ import Settings from "@/components/Settings";
 import Questions from "@/components/Questions";
 import QuizDetails from "@/components/QuizDetails";
 
-export default function EditQuizPage({ params }: { params: { id: string } }) {
+export default function EditQuizPage() {
   const [activeTab, setActiveTab] = useState("details");
   const [errors, setErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -34,39 +34,42 @@ export default function EditQuizPage({ params }: { params: { id: string } }) {
     },
   });
 
-   useEffect(() => {
+  useEffect(() => {
     if (!id) return;
 
     const fetchQuiz = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/quiz/quizzes/${id}`);
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/quiz/quizzes/${id}`
+        );
         if (!res.ok) throw new Error("Failed to fetch quiz");
         const data: Quiz = await res.json();
         // setQuiz(data);
         setQuizData({
           title: data.title,
-          description: data.description, 
+          description: data.description,
           category: data.category,
           questions: data.questions,
-          settings: data.settings
-          
+          settings: data.settings,
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : "Unknown error");
+        console.error(error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchQuiz();
-  }, [id]);
-
+  }, [id, error]);
 
   // safer typed update helpers
-  const updateQuizData = <K extends keyof QuizData>(field: K, value: QuizData[K]) => {
+  const updateQuizData = <K extends keyof QuizData>(
+    field: K,
+    value: QuizData[K]
+  ) => {
     setQuizData((prev) => ({ ...prev, [field]: value }));
   };
-
 
   if (isLoading) {
     return (
@@ -99,10 +102,14 @@ export default function EditQuizPage({ params }: { params: { id: string } }) {
         <Alert className="mb-6 border-red-200 bg-red-50">
           <AlertCircle className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-800">
-            <div className="font-medium mb-2">Please fix the following errors:</div>
+            <div className="font-medium mb-2">
+              Please fix the following errors:
+            </div>
             <ul className="list-disc list-inside space-y-1">
               {errors.map((error, i) => (
-                <li key={i} className="text-sm">{error}</li>
+                <li key={i} className="text-sm">
+                  {error}
+                </li>
               ))}
             </ul>
           </AlertDescription>
@@ -112,29 +119,30 @@ export default function EditQuizPage({ params }: { params: { id: string } }) {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-8">
           <TabsTrigger value="details">Quiz Details</TabsTrigger>
-          <TabsTrigger value="questions">Questions ({quizData.questions.length})</TabsTrigger>
+          <TabsTrigger value="questions">
+            Questions ({quizData.questions.length})
+          </TabsTrigger>
           <TabsTrigger value="settings">Settings & Schedule</TabsTrigger>
         </TabsList>
 
-         <QuizDetails 
-          quizData = {quizData}
-          updateQuizData = {updateQuizData}
+        <QuizDetails
+          quizData={quizData}
+          updateQuizData={updateQuizData}
           setActiveTab={setActiveTab}
         />
 
-        <Questions 
+        <Questions
           quizData={quizData}
           setQuizData={setQuizData}
           setActiveTab={setActiveTab}
         />
 
-         <Settings 
+        <Settings
           quizData={quizData}
-          setActiveTab = {setActiveTab}
+          setActiveTab={setActiveTab}
           setQuizData={setQuizData}
           setErrors={setErrors}
         />
-
       </Tabs>
     </DashboardLayout>
   );

@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import {
   AlertDialog,
@@ -10,42 +10,46 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu"
-import { Trash2 } from "lucide-react"
-import type { Quiz } from "@/types/types"
+} from "@/components/ui/alert-dialog";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Trash2 } from "lucide-react";
+import type { Quiz } from "@/types/types";
 
 interface QuizDeleteProps {
-  quiz: Quiz
-  onDelete: (quizId: string) => void
+  quiz: Quiz;
+  onDelete: (quizId: string) => void;
 }
 
 const QuizDelete = ({ quiz, onDelete }: QuizDeleteProps) => {
-
   const handleDelete = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/quiz/quizzes/${quiz._id}`, {
-        method: 'DELETE',
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/quiz/quizzes/${quiz._id}`,
+        {
+          method: "DELETE",
+        }
+      );
 
       if (!response.ok) {
-        throw new Error('Failed to delete quiz');
+        throw new Error("Failed to delete quiz");
       }
 
       // Call the onDelete callback to update the parent component
       onDelete(quiz._id);
-      alert('Quiz deleted successfully!');
-      
+      alert("Quiz deleted successfully!");
     } catch (error) {
-      console.error('Delete error:', error);
-      alert('Failed to delete quiz. Please try again.');
+      console.error("Delete error:", error);
+      alert("Failed to delete quiz. Please try again.");
     }
   };
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-red-600">
+        <DropdownMenuItem
+          onSelect={(e) => e.preventDefault()}
+          className="text-red-600"
+        >
           <Trash2 className="h-4 w-4 mr-2" />
           Delete Quiz
         </DropdownMenuItem>
@@ -54,13 +58,14 @@ const QuizDelete = ({ quiz, onDelete }: QuizDeleteProps) => {
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Quiz</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete "{quiz.title}"? This action cannot be undone.
+            Are you sure you want to delete &quot;{quiz.title}&quot;? This
+            action cannot be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction 
-            onClick={handleDelete} 
+          <AlertDialogAction
+            onClick={handleDelete}
             className="bg-red-600 hover:bg-red-700"
           >
             Delete
@@ -68,7 +73,7 @@ const QuizDelete = ({ quiz, onDelete }: QuizDeleteProps) => {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  )
-}
+  );
+};
 
 export default QuizDelete;

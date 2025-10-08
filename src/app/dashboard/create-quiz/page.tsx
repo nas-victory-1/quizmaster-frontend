@@ -1,21 +1,20 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, AlertCircle } from "lucide-react"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import DashboardLayout from "@/components/DashboardLayout"
-import { QuizData } from "@/types/types"
-import QuizDetails from "@/components/QuizDetails"
-import Questions from "@/components/Questions"
-import Settings from "@/components/Settings"
-
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ArrowLeft, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import DashboardLayout from "@/components/DashboardLayout";
+import { QuizData } from "@/types/types";
+import QuizDetails from "@/components/QuizDetails";
+import Questions from "@/components/Questions";
+import Settings from "@/components/Settings";
 
 export default function CreateQuizPage() {
-  const [activeTab, setActiveTab] = useState("details")
-  const [errors, setErrors] = useState<string[]>([])
+  const [activeTab, setActiveTab] = useState("details");
+  const [errors, setErrors] = useState<string[]>([]);
 
   const [quizData, setQuizData] = useState<QuizData>({
     title: "",
@@ -29,11 +28,14 @@ export default function CreateQuizPage() {
       date: "",
       time: "",
     },
-  })
+  });
 
-  const updateQuizData = (field: keyof QuizData, value: any) => {
-    setQuizData((prev) => ({ ...prev, [field]: value }))
-  }
+  const updateQuizData = <K extends keyof QuizData>(
+    field: K,
+    value: QuizData[K]
+  ) => {
+    setQuizData((prev) => ({ ...prev, [field]: value }));
+  };
 
   return (
     <DashboardLayout>
@@ -50,7 +52,9 @@ export default function CreateQuizPage() {
         <Alert className="mb-6 border-red-200 bg-red-50">
           <AlertCircle className="h-4 w-4 text-red-600" />
           <AlertDescription className="text-red-800">
-            <div className="font-medium mb-2">Please fix the following errors:</div>
+            <div className="font-medium mb-2">
+              Please fix the following errors:
+            </div>
             <ul className="list-disc list-inside space-y-1">
               {errors.map((error, index) => (
                 <li key={index} className="text-sm">
@@ -65,35 +69,35 @@ export default function CreateQuizPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full grid-cols-3 mb-8">
           <TabsTrigger value="details">Quiz Details</TabsTrigger>
-          <TabsTrigger value="questions">Questions ({quizData.questions.length})</TabsTrigger>
+          <TabsTrigger value="questions">
+            Questions ({quizData.questions.length})
+          </TabsTrigger>
           <TabsTrigger value="settings">Settings & Schedule</TabsTrigger>
         </TabsList>
 
         {/* Quiz Details Tab */}
 
-        <QuizDetails 
-          quizData = {quizData}
-          updateQuizData = {updateQuizData}
+        <QuizDetails
+          quizData={quizData}
+          updateQuizData={updateQuizData}
           setActiveTab={setActiveTab}
         />
 
         {/* Quiz questions tab */}
-        <Questions 
+        <Questions
           quizData={quizData}
           setQuizData={setQuizData}
           setActiveTab={setActiveTab}
         />
-        
 
         {/* Settings and Scheduling tab */}
-        <Settings 
+        <Settings
           quizData={quizData}
-          setActiveTab = {setActiveTab}
+          setActiveTab={setActiveTab}
           setQuizData={setQuizData}
           setErrors={setErrors}
         />
-        
       </Tabs>
     </DashboardLayout>
-  )
+  );
 }

@@ -113,7 +113,7 @@ const Settings = ({ quizData, setErrors, setActiveTab }: Props) => {
         alert(id ? "Quiz updated successfully!" : "Quiz created successfully!");
 
         if (!id) {
-          const newQuiz = await response.json();
+          await response.json();
           router.push(`/dashboard/quizzes`);
         }
       } catch (err) {
@@ -187,112 +187,6 @@ const Settings = ({ quizData, setErrors, setActiveTab }: Props) => {
 
   return (
     <TabsContent value="settings" className="space-y-6">
-      {/* <Card>
-        <CardContent className="pt-6">
-          <div className="grid gap-6">
-            <div>
-              <h3 className="text-lg font-medium mb-4">Quiz Settings</h3>
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-base">Show Leaderboard After Each Question</Label>
-                    <p className="text-sm text-gray-500">Display rankings after each question is answered</p>
-                  </div>
-                  <Switch
-                    checked={quizData.settings.leaderboard}
-                    onCheckedChange={(value) =>
-                      setQuizData((prev) => ({
-                        ...prev,
-                        settings: {
-                          ...prev.settings,
-                          leaderboard: value,
-                        },
-                      }))
-                    }
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-base">Randomize Question Order</Label>
-                    <p className="text-sm text-gray-500">Present questions in random order to participants</p>
-                  </div>
-                  <Switch
-                    checked={quizData.settings.shuffle}
-                    onCheckedChange={(value) =>
-                      setQuizData((prev) => ({
-                        ...prev,
-                        settings: {
-                          ...prev.settings,
-                          shuffle: value,
-                        },
-                      }))
-                    }
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-base">Allow Participants to Review Answers</Label>
-                    <p className="text-sm text-gray-500">Let participants see correct answers after the quiz</p>
-                  </div>
-                  <Switch
-                    checked={quizData.settings.reviewAnswers}
-                    onCheckedChange={(value) =>
-                      setQuizData((prev) => ({
-                        ...prev,
-                        settings: {
-                          ...prev.settings,
-                          reviewAnswers: value,
-                        },
-                      }))
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t pt-6">
-              <h3 className="text-lg font-medium mb-4">Schedule Quiz</h3>
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="quiz-date">Date</Label>
-                  <Input
-                    id="quiz-date"
-                    type="date"
-                    value={quizData.settings.date}
-                    onChange={(e) =>
-                      setQuizData((prev) => ({
-                        ...prev,
-                        settings: {
-                          ...prev.settings,
-                          date: e.target.value,
-                        },
-                      }))
-                    }
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="quiz-time">Time</Label>
-                  <Input
-                    id="quiz-time"
-                    type="time"
-                    value={quizData.settings.time}
-                    onChange={(e) =>
-                      setQuizData((prev) => ({
-                        ...prev,
-                        settings: {
-                          ...prev.settings,
-                          time: e.target.value,
-                        },
-                      }))
-                    }
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card> */}
-
       {/* NEW: Launch Options Section */}
       <Card className="bg-gradient-to-r from-purple-50 to-violet-50 border-purple-200">
         <CardContent className="pt-6">

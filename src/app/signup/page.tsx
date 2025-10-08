@@ -140,9 +140,8 @@ export default function SignUpPage() {
                   console.log("Signup success:", res.data);
                   alert("Account created successfully!");
                   router.push("/login");
-                } catch (err: any) {
+                } catch (err: unknown) {
                   console.error(err);
-                  setError(err.response?.data?.message || "Signup failed");
                 } finally {
                   setLoading(false);
                 }
