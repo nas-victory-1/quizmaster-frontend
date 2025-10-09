@@ -36,7 +36,7 @@ export default function LoginPage() {
             </div>
             <h1 className="text-xl font-bold">QuizMaster</h1>
           </Link>
-          <div className="text-sm text-gray-600">
+          <div className=" flex flex-col gap-3 text-sm text-gray-600">
             {"Don't have an account? "}
             <Link
               href="/signup"
