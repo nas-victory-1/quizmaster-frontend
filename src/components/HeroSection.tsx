@@ -1,6 +1,6 @@
-import { Brain } from "lucide-react";
+// import { Brain } from "lucide-react";
 import Button from "./Button";
-import { Users } from "lucide-react";
+// import { Users } from "lucide-react";
 import Link from "next/link";
 const HeroSection = () => {
   return (
