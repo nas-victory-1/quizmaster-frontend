@@ -25,7 +25,7 @@ const HeroSection = () => {
             {/* </Link> */}
           </div>
         </div>
-        <div className="relative">
+        {/* <div className="relative">
           <div className="w-20 h-20 bg-purple-600 rounded-lg flex items-center justify-center">
             <span className="text-white font-bold text-lg">
               <Brain />
@@ -40,7 +40,7 @@ const HeroSection = () => {
               <span className="font-medium">10,000+ active users</span>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </section>
   );
