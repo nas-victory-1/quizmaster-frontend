@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { Brain } from "lucide-react";
 import Button from "./Button";
 import { Users } from "lucide-react";
 import Link from "next/link";
@@ -26,9 +26,14 @@ const HeroSection = () => {
           </div>
         </div>
         <div className="relative">
-          <div className="bg-white rounded-lg shadow-xl p-6 h-90 ">
-            <Image src="/images/quizmasterPic.png" alt="Quizmaster Logo" fill />
+          <div className="w-20 h-20 bg-purple-600 rounded-lg flex items-center justify-center">
+            <span className="text-white font-bold text-lg">
+              <Brain />
+            </span>
           </div>
+          <span className="text-9xl font-bold text-gray-900 dark:text-white">
+            QuizMaster
+          </span>
           <div className="absolute -bottom-6 -left-6 bg-purple-100 p-4 rounded-lg shadow-md">
             <div className="flex items-center gap-2">
               <Users className="text-purple-600" />
