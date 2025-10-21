@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
 const SOCKET_URL =
-  process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:5000";
+  process.env.NEXT_PUBLIC_SOCKET_URL ||
+  "https://quizmaster-backend-5xml.onrender.com";
 
 interface QuestionData {
   question: string;
